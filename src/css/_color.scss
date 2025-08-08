@@ -1,0 +1,123 @@
+$colors: (
+  'gray': (
+    '0': #f4f5f6,
+    '50': #ebeeef,
+    '100': #e3e6e8,
+    '200': #d5dadc,
+    '300': #c6cdd0,
+    '400': #abb5ba,
+    '500': #8f9ca3,
+    '600': #73838c,
+    '700': #5c6970,
+    '800': #454f54,
+    '900': #2e3538,
+  ),
+  'teal': (
+    '0': #eef6f7,
+    '50': #cbe5e6,
+    '100': #a9d4d6,
+    '200': #86c2c5,
+    '300': #64b1b5,
+    '400': #4a979b,
+    '500': #3a7679,
+    '600': #2e5e60,
+    '700': #264d4f,
+    '800': #1e3c3e,
+    '900': #162b2d,
+  ),
+  'green': (
+    '0': #eafbf4,
+    '50': #ccf5e4,
+    '100': #a1edcd,
+    '200': #76e5b6,
+    '300': #4ddda0,
+    '400': #1cd084,
+    '500': #15b471,
+    '600': #11925c,
+    '700': #0d7248,
+    '800': #095234,
+    '900': #063723,
+  ),
+  'yellow': (
+    '0': #fffef5,
+    '50': #fffce5,
+    '100': #fff9cc,
+    '200': #fff6b3,
+    '300': #fff18a,
+    '400': #ffe624,
+    '500': #fadd00,
+    '600': #dec60c,
+    '700': #b8a40a,
+    '800': #918108,
+    '900': #6a5f06,
+  ),
+  'amber': (
+    '0': #fdf7ed,
+    '50': #fbeeda,
+    '100': #f9e5c7,
+    '200': #f6d4a2,
+    '300': #f1bf74,
+    '400': #ecaa46,
+    '500': #e89519,
+    '600': #c27d14,
+    '700': #9d6510,
+    '800': #7d500d,
+    '900': #583809,
+  ),
+  'orange': (
+    '0': #fff2eb,
+    '50': #fee5d7,
+    '100': #fed5be,
+    '200': #fdb48c,
+    '300': #fc945a,
+    '400': #fb7429,
+    '500': #eb5704,
+    '600': #c94a03,
+    '700': #a13b02,
+    '800': #792c02,
+    '900': #501d01,
+  ),
+  'red': (
+    '0': #fdf1f1,
+    '50': #fce4e4,
+    '100': #f6b7b7,
+    '200': #f08a8a,
+    '300': #ea5d5d,
+    '400': #e43030,
+    '500': #c71a1a,
+    '600': #991414,
+    '700': #831111,
+    '800': #6c0e0e,
+    '900': #480909,
+  ),
+);
+
+:root {
+  @each $color, $shades in $colors {
+    @each $shade, $value in $shades {
+      @if $shade == 500 {
+        --color-#{$color}: #{$value};
+      }
+      --color-#{$color}-#{$shade}: #{$value};
+    }
+  }
+}
+
+@each $color, $shades in $colors {
+  @each $shade, $value in $shades {
+    @if $shade == 500 {
+      .text-#{$color} {
+        color: #{$value} !important;
+      }
+      .bg-#{$color} {
+        background-color: #{$value} !important;
+      }
+    }
+    .text-#{$color}-#{$shade} {
+      color: #{$value} !important;
+    }
+    .bg-#{$color}-#{$shade} {
+      background-color: #{$value} !important;
+    }
+  }
+}

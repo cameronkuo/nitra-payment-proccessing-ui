@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn flat dense round icon="fa fa-bars" aria-label="Menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title> Quasar App </q-toolbar-title>
 
@@ -32,43 +32,43 @@ const linksList: EssentialLinkProps[] = [
   {
     title: 'Docs',
     caption: 'quasar.dev',
-    icon: 'school',
+    icon: 'fa-solid fa-book',
     link: 'https://quasar.dev',
   },
   {
     title: 'Github',
     caption: 'github.com/quasarframework',
-    icon: 'code',
+    icon: 'fa-brands fa-github',
     link: 'https://github.com/quasarframework',
   },
   {
     title: 'Discord Chat Channel',
     caption: 'chat.quasar.dev',
-    icon: 'chat',
+    icon: 'fa-brands fa-discord',
     link: 'https://chat.quasar.dev',
   },
   {
     title: 'Forum',
     caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
+    icon: 'fa-solid fa-comments',
     link: 'https://forum.quasar.dev',
   },
   {
     title: 'Twitter',
     caption: '@quasarframework',
-    icon: 'rss_feed',
+    icon: 'fa-brands fa-twitter',
     link: 'https://twitter.quasar.dev',
   },
   {
     title: 'Facebook',
     caption: '@QuasarFramework',
-    icon: 'public',
+    icon: 'fa-brands fa-facebook',
     link: 'https://facebook.quasar.dev',
   },
   {
     title: 'Quasar Awesome',
     caption: 'Community Quasar projects',
-    icon: 'favorite',
+    icon: 'fa-solid fa-star',
     link: 'https://awesome.quasar.dev',
   },
 ];
