@@ -10,8 +10,8 @@
           :key="shade"
           class="color-swatch"
           :style="{ backgroundColor: hex }"
-          @click="copyToClipboard(hex)"
           :title="`Click to copy ${hex}`"
+          @click="copyToClipboard(hex)"
         >
           <div class="color-info">
             <div class="text-weight-bold">{{ shade }}</div>
@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useQuasar } from 'quasar';
+import { ref } from 'vue';
 
 interface ColorShades {
   [shade: string]: string;
@@ -134,7 +134,6 @@ const colors = ref<Colors>({
 const copyToClipboard = async (hex: string) => {
   try {
     await navigator.clipboard.writeText(hex);
-    console.log($q);
     $q.notify({
       message: `Copied ${hex} to clipboard`,
       color: 'positive',

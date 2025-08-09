@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn flat dense round icon="fa fa-bars" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn aria-label="Menu" dense flat icon="fa fa-bars" round @click="toggleLeftDrawer" />
 
         <q-toolbar-title> Quasar App </q-toolbar-title>
 
@@ -10,7 +10,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer v-model="leftDrawerOpen" bordered>
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
 
@@ -25,8 +25,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+import { ref } from 'vue';
 
 const linksList: EssentialLinkProps[] = [
   {

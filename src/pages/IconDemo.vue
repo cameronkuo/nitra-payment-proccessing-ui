@@ -17,7 +17,7 @@
           class="row items-center justify-center q-pa-md rounded-borders"
           style="background-color: #f5f5f5; height: 100px"
         >
-          <component :is="icon.component" :width="48" :height="48" />
+          <component :is="icon.component" :height="48" :width="48" />
         </div>
         <div class="text-caption q-mt-sm text-grey-8">{{ icon.name }}</div>
       </div>

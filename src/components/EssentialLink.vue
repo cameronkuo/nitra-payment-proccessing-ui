@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable tag="a" :target="link?.startsWith('http') ? '_blank' : undefined" :href="link">
+  <q-item clickable :href="link" tag="a" :target="link?.startsWith('http') ? '_blank' : undefined">
     <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
     </q-item-section>
