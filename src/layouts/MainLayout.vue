@@ -84,6 +84,12 @@ const linksList: EssentialLinkProps[] = [
     icon: 'photo_library',
     link: '/icons',
   },
+  {
+    title: 'Dialog Demo',
+    caption: 'Global Dialog',
+    icon: 'open_in_new',
+    link: '/dialogs',
+  },
 ];
 
 const leftDrawerOpen = ref(false);
