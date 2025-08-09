@@ -26,8 +26,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useQuasar, copyToClipboard } from 'quasar';
+import { computed } from 'vue';
+
 import * as SVGIcons from 'src/components/SVGIcons';
 
 const $q = useQuasar();

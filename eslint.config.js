@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import pluginQuasar from '@quasar/app-vite/eslint';
 import prettierSkipFormatting from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
+import importPlugin from 'eslint-plugin-import';
 import pluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
 
@@ -44,6 +45,9 @@ export default defineConfigWithVueTs(
   // https://github.com/vuejs/eslint-config-typescript
   vueTsConfigs.recommendedTypeChecked,
 
+  // https://github.com/import-js/eslint-plugin-import
+  importPlugin.flatConfigs.recommended,
+
   {
     languageOptions: {
       ecmaVersion: 'latest',
@@ -61,6 +65,18 @@ export default defineConfigWithVueTs(
       },
     },
 
+    settings: {
+      'import/resolver': {
+        // You will also need to install and configure the TypeScript resolver
+        // See also https://github.com/import-js/eslint-import-resolver-typescript#configuration
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+        node: true,
+      },
+    },
+
     // add your custom rules here
     rules: {
       'prefer-promise-reject-errors': 'off',
@@ -70,6 +86,45 @@ export default defineConfigWithVueTs(
 
       'vue/attributes-order': ['warn', { alphabetical: true }],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+
+      'import/order': [
+        'error',
+        {
+          // How groups are defined, and the order to respect.
+          // https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/order.md#groups-array
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'unknown',
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
+          // https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/order.md#pathgroups-array-of-objects
+          pathGroups: [
+            {
+              pattern: 'components/**',
+              group: 'unknown', // 在規定的 group 中選其一，builtin、external、internal、unknown、parent、sibling、index、object、type
+              position: 'after', // after、before
+            },
+            {
+              pattern: 'src/**',
+              group: 'internal', // 在規定的 group 中選其一，builtin、external、internal、unknown、parent、sibling、index、object、type
+              position: 'after', // after、before
+            },
+          ],
+          // https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/order.md#pathgroupsexcludedimporttypes-array
+          pathGroupsExcludedImportTypes: ['type'], // 將 type 類型的 import 排除在 pathGroups 之外
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
     },
   },
 
