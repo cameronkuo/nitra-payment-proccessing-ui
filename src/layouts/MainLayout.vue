@@ -71,6 +71,18 @@ const linksList: EssentialLinkProps[] = [
     icon: 'fa-solid fa-star',
     link: 'https://awesome.quasar.dev',
   },
+  {
+    title: 'Color Demo',
+    caption: 'Color palette',
+    icon: 'colorize',
+    link: '/colors',
+  },
+  {
+    title: 'Icon Demo',
+    caption: 'SVG Icons',
+    icon: 'photo_library',
+    link: '/icons',
+  },
 ];
 
 const leftDrawerOpen = ref(false);

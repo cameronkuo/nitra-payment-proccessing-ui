@@ -92,6 +92,13 @@ export default defineConfig((ctx) => {
           },
           { server: false },
         ],
+
+        [
+          '@vitejs/plugin-vue-jsx',
+          {
+            // options
+          },
+        ],
       ],
     },
 
