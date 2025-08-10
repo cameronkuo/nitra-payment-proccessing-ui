@@ -63,9 +63,28 @@
 
         <!-- Card Payment -->
         <div v-if="paymentMethod === 'card'" class="q-pa-md">
-          <CardPayment />
+          <CardPayment
+            :amount="paymentAmount"
+            :location="currentLocation"
+            :organization="organization"
+            :readers="availableReaders"
+            @process-payment="processCardPayment"
+            @update:amount="paymentAmount = $event"
+          />
         </div>
       </div>
+    </div>
+
+    <!-- Payment Confirmation State -->
+    <div v-if="paymentState === 'confirmation' && lastPaymentData && lastCalculation">
+      <PaymentConfirmation
+        :calculation="lastCalculation"
+        :location="currentLocation"
+        :payment-data="lastPaymentData"
+        :readers="readers"
+        :transaction-id="generateTransactionId()"
+        @new-payment="startNewPayment"
+      />
     </div>
   </div>
 </template>
@@ -80,6 +99,7 @@ import { calculatePaymentTotals } from 'src/utils/payment-calculations';
 
 import CardPayment from './CardPayment.vue';
 import CashPayment from './CashPayment.vue';
+import PaymentConfirmation from './PaymentConfirmation.vue';
 
 import type {
   Location,

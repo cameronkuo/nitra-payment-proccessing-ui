@@ -42,6 +42,14 @@
         </q-card>
       </div>
 
+      <!-- Minimum Amount Error -->
+      <div v-if="amount > 0 && location && calculation.total < 0.5" class="col-12">
+        <q-banner class="text-warning bg-orange-1">
+          <q-icon name="fas fa-exclamation-triangle" class="q-mr-sm" />
+          Total amount falls below the required minimum of $0.50
+        </q-banner>
+      </div>
+
       <!-- Process Payment Button -->
       <div class="col-12">
         <q-btn
@@ -95,7 +103,7 @@ const calculation = computed(() => {
 });
 
 const canProcessPayment = computed(() => 
-  props.amount > 0 && props.location !== null
+  props.amount > 0 && props.location !== null && calculation.value.total >= 0.5
 );
 
 const onAmountChange = (value: string | number | null) => {
