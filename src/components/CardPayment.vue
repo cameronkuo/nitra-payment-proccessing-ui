@@ -222,14 +222,29 @@
 
       <!-- Process Payment Button -->
       <div class="col-12">
+        <!-- Reader Payment Button -->
         <q-btn
+          v-if="paymentType === 'reader'"
+          class="full-width"
+          color="primary"
+          :disabled="!canProcessPayment"
+          size="lg"
+          @click="initiateReaderPayment"
+        >
+          <q-icon class="q-mr-sm" name="fas fa-credit-card" />
+          Initiate Payment on Reader
+        </q-btn>
+
+        <!-- Manual Card Payment Button -->
+        <q-btn
+          v-else
           class="full-width"
           color="primary"
           :disabled="!canProcessPayment"
           size="lg"
           @click="processPayment"
         >
-          <q-icon class="q-mr-sm" name="fas fa-credit-card" />
+          <q-icon class="q-mr-sm" name="fas fa-keyboard" />
           Process Card Payment
         </q-btn>
       </div>
@@ -249,6 +264,7 @@ import {
 } from 'src/utils/payment-calculations';
 
 import EditMerchantProcessingFee from './EditMerchantProcessingFee.vue';
+import InitiatePaymentOnReader from './InitiatePaymentOnReader.vue';
 
 import type {
   Location,
@@ -323,7 +339,8 @@ const calculation = computed(() => {
 const hasOnlineReaders = computed(() => props.readers.some((reader) => reader.status === 'online'));
 
 const canProcessPayment = computed(() => {
-  const baseRequirements = props.amount > 0 && props.location !== null && calculation.value.total >= 0.5;
+  const baseRequirements =
+    props.amount > 0 && props.location !== null && calculation.value.total >= 0.5;
 
   if (paymentType.value === 'reader') {
     return baseRequirements && selectedReader.value !== null && hasOnlineReaders.value;
@@ -383,6 +400,41 @@ const openFeeDialog = () => {
           eventEmitter.emit(CommonEvent.CLOSE_DIALOG);
         },
         onClose: () => {
+          eventEmitter.emit(CommonEvent.CLOSE_DIALOG);
+        },
+      }),
+  });
+};
+
+const initiateReaderPayment = () => {
+  if (!canProcessPayment.value || !props.location || !selectedReader.value) return;
+
+  const reader = props.readers.find((r) => r.id === selectedReader.value);
+  if (!reader || reader.status !== 'online') return;
+
+  const paymentData: PaymentData = {
+    amount: props.amount,
+    method: 'card',
+    locationId: props.location.id,
+    readerId: reader.readerId,
+  };
+
+  eventEmitter.emit(CommonEvent.OPEN_DIALOG, {
+    title: '',
+    showClose: false,
+    dialogProps: {
+      persistent: true,
+    },
+    children: () =>
+      h(InitiatePaymentOnReader, {
+        paymentData,
+        calculation: calculation.value,
+        reader,
+        onProcessPayment: () => {
+          eventEmitter.emit(CommonEvent.CLOSE_DIALOG);
+          emit('process-payment', paymentData);
+        },
+        onCancel: () => {
           eventEmitter.emit(CommonEvent.CLOSE_DIALOG);
         },
       }),
