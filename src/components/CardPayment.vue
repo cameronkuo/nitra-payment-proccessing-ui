@@ -74,10 +74,10 @@
           filled
           label="Select Card Reader"
           map-options
+          :option-disable="(opt) => opt.status === 'offline'"
           option-label="label"
           option-value="id"
           :options="readers"
-          :option-disable="(opt) => opt.status === 'offline'"
         >
           <template #selected-item="scope">
             <span>{{ scope.opt.label }}</span>
@@ -95,8 +95,8 @@
                   {{ scope.opt.label }}
                   <q-chip
                     v-if="scope.opt.status === 'offline'"
-                    size="sm"
                     color="grey-4"
+                    size="sm"
                     text-color="grey-7"
                   >
                     Offline
@@ -199,7 +199,7 @@
 
             <div class="summary-row">
               <span>Processing Fee:</span>
-              <span>{{ formatCurrency(calculation.processingFee) }}</span>
+              <span>{{ formatCurrency(calculation.patientFee) }}</span>
             </div>
 
             <q-separator class="q-my-sm" />
@@ -215,7 +215,7 @@
       <!-- Minimum Amount Error -->
       <div v-if="amount > 0 && location && calculation.total < 0.5" class="col-12">
         <q-banner class="text-warning bg-orange-1">
-          <q-icon name="fas fa-exclamation-triangle" class="q-mr-sm" />
+          <q-icon class="q-mr-sm" name="fas fa-exclamation-triangle" />
           Total amount falls below the required minimum of $0.50
         </q-banner>
       </div>
@@ -293,9 +293,9 @@ const paymentType = ref<'reader' | 'manual'>('reader');
 const selectedReader = ref<number | null>(null);
 
 const feeConfig = ref<ProcessingFeeConfig>({
-  merchantFixed: 5,
+  merchantFixed: 0.05,
   merchantPercentage: 1.5,
-  patientFixed: 5,
+  patientFixed: 0.05,
   patientPercentage: 2.0,
 });
 
@@ -417,6 +417,7 @@ const initiateReaderPayment = () => {
     method: 'card',
     locationId: props.location.id,
     readerId: reader.readerId,
+    processingFeeConfig: feeConfig.value,
   };
 
   eventEmitter.emit(CommonEvent.OPEN_DIALOG, {
@@ -448,6 +449,7 @@ const processPayment = () => {
     amount: props.amount,
     method: 'card',
     locationId: props.location.id,
+    processingFeeConfig: feeConfig.value,
   };
 
   if (paymentType.value === 'reader' && selectedReader.value) {

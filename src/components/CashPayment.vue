@@ -45,7 +45,7 @@
       <!-- Minimum Amount Error -->
       <div v-if="amount > 0 && location && calculation.total < 0.5" class="col-12">
         <q-banner class="text-warning bg-orange-1">
-          <q-icon name="fas fa-exclamation-triangle" class="q-mr-sm" />
+          <q-icon class="q-mr-sm" name="fas fa-exclamation-triangle" />
           Total amount falls below the required minimum of $0.50
         </q-banner>
       </div>

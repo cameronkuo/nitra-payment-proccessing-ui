@@ -1,149 +1,135 @@
 <template>
-  <div class="edit-processing-fee q-pa-md">
-    <div class="text-h6 q-mb-md">Edit Merchant Processing Fee</div>
-    
-    <!-- Payment Amount Display -->
-    <div class="q-mb-md">
-      <q-input
-        filled
-        label="Payment Amount"
-        :model-value="formatCurrency(paymentAmount)"
-        readonly
+  <div class="edit-processing-fee q-pa-lg">
+    <!-- Header -->
+    <div class="row items-center justify-between q-mb-md">
+      <div class="text-h5">Edit Merchant Processing Fee</div>
+      <q-btn flat icon="close" round @click="$emit('close')" />
+    </div>
+
+    <div class="text-body2 text-grey-6 q-mb-lg">Only applies to this transaction</div>
+
+    <!-- Slider Section -->
+    <div class="slider-section q-mb-lg">
+      <!-- Slider Tooltip -->
+      <div class="slider-tooltip" :style="tooltipStyle">
+        <div class="tooltip-percentage">{{ sliderValue.toFixed(2) }}%</div>
+        <div class="tooltip-amount">{{ formatCurrency(merchantFeeAmount) }}</div>
+      </div>
+
+      <!-- Slider -->
+      <q-slider
+        v-model="sliderValue"
+        class="fee-slider q-mb-md"
+        color="primary"
+        label-always
+        :max="totalProcessingPercentage"
+        :min="0"
+        :step="0.01"
+        thumb-color="white"
+        track-color="grey-3"
       />
+
+      <!-- Slider Labels -->
+      <div class="slider-labels">
+        <span>0</span>
+        <span>{{ totalProcessingPercentage }}%</span>
+      </div>
     </div>
 
-    <!-- Total Processing Fee Display -->
-    <div class="q-mb-md">
-      <q-card bordered class="q-pa-md" flat>
-        <div class="text-subtitle2 q-mb-sm">Total Processing Fee</div>
-        <div class="row q-gutter-md">
-          <div class="col">
-            <q-input
-              dense
-              filled
-              label="Fixed Fee ($)"
-              :model-value="organization.totalProcessingFeeFixed"
-              readonly
-              type="number"
-            />
-          </div>
-          <div class="col">
-            <q-input
-              dense
-              filled
-              label="Percentage (%)"
-              :model-value="(parseFloat(organization.totalProcessingFeePercentage) * 100).toFixed(2)"
-              readonly
-              type="number"
-            />
-          </div>
+    <!-- Fee Configuration -->
+    <div class="fee-config-section q-mb-lg">
+      <!-- Merchant Processing Fee -->
+      <div class="fee-row q-mb-md">
+        <div class="fee-label">Merchant processing fee</div>
+        <div class="fee-inputs row q-gutter-sm items-center">
+          <q-input
+            v-model.number="merchantPercentage"
+            class="percentage-input"
+            dense
+            :max="totalProcessingPercentage"
+            min="0"
+            outlined
+            step="0.01"
+            suffix="%"
+            type="number"
+            @update:model-value="updateFromMerchantPercentage"
+          />
+          <div class="text-grey-6">/ {{ totalProcessingPercentage }}% +</div>
+          <div class="text-grey-6">$</div>
+          <q-input
+            v-model.number="merchantFixed"
+            class="fixed-input"
+            dense
+            min="0"
+            outlined
+            step="0.01"
+            type="number"
+          />
+          <div class="text-grey-6">/ $0.10</div>
         </div>
-        <div class="text-body2 text-primary q-mt-sm">
-          Total: {{ formatCurrency(totalProcessingFee) }}
+      </div>
+
+      <!-- Patient Processing Fee -->
+      <div class="fee-row q-mb-md">
+        <div class="fee-label">Patient processing fee</div>
+        <div class="fee-inputs row q-gutter-sm items-center">
+          <q-input
+            v-model.number="patientPercentage"
+            class="percentage-input"
+            dense
+            :max="totalProcessingPercentage"
+            min="0"
+            outlined
+            step="0.01"
+            suffix="%"
+            type="number"
+            @update:model-value="updateFromPatientPercentage"
+          />
+          <div class="text-grey-6">/ {{ totalProcessingPercentage }}% +</div>
+          <div class="text-grey-6">$</div>
+          <q-input
+            v-model.number="patientFixed"
+            class="fixed-input"
+            dense
+            min="0"
+            outlined
+            step="0.01"
+            type="number"
+          />
+          <div class="text-grey-6">/ $0.10</div>
         </div>
-      </q-card>
+      </div>
+
+      <!-- Set Patient Fee to 0 Link -->
+      <div class="text-center q-mb-lg">
+        <q-btn
+          color="primary"
+          flat
+          label="Set patient processing fee to 0"
+          @click="setPatientFeeToZero"
+        />
+      </div>
     </div>
 
-    <!-- Fee Distribution -->
-    <div class="q-mb-md">
-      <div class="text-subtitle1 q-mb-md">Fee Distribution</div>
-      
-      <!-- Merchant Fees -->
-      <q-card bordered class="q-pa-md q-mb-md" flat>
-        <div class="text-subtitle2 q-mb-sm">Merchant Fees</div>
-        <div class="row q-gutter-md">
-          <div class="col">
-            <q-input
-              v-model.number="feeConfig.merchantFixed"
-              dense
-              filled
-              label="Fixed Fee ($)"
-              min="0"
-              step="0.01"
-              type="number"
-              @update:model-value="onFeeConfigChange"
-            />
-          </div>
-          <div class="col">
-            <q-input
-              v-model.number="feeConfig.merchantPercentage"
-              dense
-              filled
-              label="Percentage (%)"
-              min="0"
-              step="0.01"
-              type="number"
-              @update:model-value="onFeeConfigChange"
-            />
-          </div>
-        </div>
-        <div class="text-body2 text-negative q-mt-sm">
-          Merchant pays: {{ formatCurrency(calculatedMerchantFee) }}
-        </div>
-      </q-card>
-
-      <!-- Patient Fees -->
-      <q-card bordered class="q-pa-md" flat>
-        <div class="text-subtitle2 q-mb-sm">Patient Fees</div>
-        <div class="row q-gutter-md">
-          <div class="col">
-            <q-input
-              v-model.number="feeConfig.patientFixed"
-              dense
-              filled
-              label="Fixed Fee ($)"
-              min="0"
-              step="0.01"
-              type="number"
-              @update:model-value="onFeeConfigChange"
-            />
-          </div>
-          <div class="col">
-            <q-input
-              v-model.number="feeConfig.patientPercentage"
-              dense
-              filled
-              label="Percentage (%)"
-              min="0"
-              step="0.01"
-              type="number"
-              @update:model-value="onFeeConfigChange"
-            />
-          </div>
-        </div>
-        <div class="text-body2 text-negative q-mt-sm">
-          Patient pays: {{ formatCurrency(calculatedPatientFee) }}
-        </div>
-      </q-card>
-    </div>
-
-    <!-- Fee Validation -->
-    <div v-if="feeValidationMessage" class="q-mb-md">
-      <q-banner :class="feeValidationClass">
-        {{ feeValidationMessage }}
-      </q-banner>
+    <!-- Transaction Summary -->
+    <div class="transaction-summary q-mb-lg">
+      <div class="text-body1 q-mb-sm">
+        On this {{ formatCurrency(paymentAmount) }} transaction, you pay
+        {{ formatCurrency(calculatedMerchantFee) }}, and patient pays
+        {{ formatCurrency(calculatedPatientFee) }}
+      </div>
     </div>
 
     <!-- Action Buttons -->
     <div class="row q-gutter-md">
-      <q-btn
-        color="grey-7"
-        flat
-        label="Cancel"
-        @click="$emit('close')"
-      />
-      <q-btn
-        color="primary"
-        :disabled="!isValidConfiguration"
-        label="Save Configuration"
-        @click="saveConfiguration"
-      />
+      <q-btn class="col-6" color="grey-7" flat label="Cancel" @click="$emit('close')" />
+      <q-btn class="col-6" color="primary" label="Update" @click="saveConfiguration" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { formatCurrency } from 'src/utils/payment-calculations';
 
@@ -163,80 +149,86 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const feeConfig = reactive<ProcessingFeeConfig>({
-  merchantFixed: props.initialConfig?.merchantFixed ?? 0,
-  merchantPercentage: props.initialConfig?.merchantPercentage ?? 0,
-  patientFixed: props.initialConfig?.patientFixed ?? 0,
-  patientPercentage: props.initialConfig?.patientPercentage ?? 0,
-});
-
-const totalProcessingFee = computed(() => {
-  const fixedFee = props.organization.totalProcessingFeeFixed;
-  const percentageFee = parseFloat(props.organization.totalProcessingFeePercentage) * props.paymentAmount;
-  return fixedFee + percentageFee;
-});
-
-const calculatedMerchantFee = computed(() => 
-  feeConfig.merchantFixed + (feeConfig.merchantPercentage * props.paymentAmount / 100)
+// Get the total processing percentage from organization
+const totalProcessingPercentage = computed(
+  () => Math.round(parseFloat(props.organization.totalProcessingFeePercentage) * 100 * 100) / 100,
 );
 
-const calculatedPatientFee = computed(() => 
-  feeConfig.patientFixed + (feeConfig.patientPercentage * props.paymentAmount / 100)
+// Individual fee components
+const merchantPercentage = ref(props.initialConfig?.merchantPercentage ?? 1.0);
+const merchantFixed = ref(props.initialConfig?.merchantFixed ?? 0.05);
+const patientPercentage = ref(props.initialConfig?.patientPercentage ?? 2.5);
+const patientFixed = ref(props.initialConfig?.patientFixed ?? 0.05);
+
+// Slider value (represents merchant percentage)
+const sliderValue = ref(merchantPercentage.value);
+
+// Computed values
+const merchantFeeAmount = computed(
+  () => (sliderValue.value * props.paymentAmount) / 100,
 );
 
-const totalConfiguredFees = computed(() => 
-  calculatedMerchantFee.value + calculatedPatientFee.value
+const calculatedMerchantFee = computed(
+  () => (merchantPercentage.value * props.paymentAmount) / 100 + merchantFixed.value,
 );
 
-const isValidConfiguration = computed(() => {
-  const difference = Math.abs(totalConfiguredFees.value - totalProcessingFee.value);
-  return difference < 0.01; // Allow for small rounding differences
+const calculatedPatientFee = computed(
+  () => (patientPercentage.value * props.paymentAmount) / 100 + patientFixed.value,
+);
+
+// Tooltip positioning
+const tooltipStyle = computed(() => {
+  const percentage = sliderValue.value / totalProcessingPercentage.value;
+  const leftPosition = percentage * 100;
+  return {
+    left: `${Math.min(Math.max(leftPosition, 10), 90)}%`,
+    transform: 'translateX(-50%)',
+  };
 });
 
-const feeValidationMessage = computed(() => {
-  const difference = totalConfiguredFees.value - totalProcessingFee.value;
-  
-  if (Math.abs(difference) < 0.01) {
-    return 'Fee distribution is correct.';
-  } else if (difference > 0.01) {
-    return `Warning: Configured fees exceed total processing fee by ${formatCurrency(difference)}.`;
-  } else {
-    return `Warning: Configured fees are ${formatCurrency(Math.abs(difference))} less than total processing fee.`;
+// Update functions
+const updateFromMerchantPercentage = () => {
+  sliderValue.value = merchantPercentage.value;
+  // Auto-adjust patient percentage to maintain balance
+  const remainingPercentage = totalProcessingPercentage.value - merchantPercentage.value;
+  if (remainingPercentage >= 0) {
+    patientPercentage.value = remainingPercentage;
   }
-});
+};
 
-const feeValidationClass = computed(() => {
-  if (isValidConfiguration.value) {
-    return 'text-positive bg-green-1';
+const updateFromPatientPercentage = () => {
+  // Auto-adjust merchant percentage to maintain balance
+  const remainingPercentage = totalProcessingPercentage.value - patientPercentage.value;
+  if (remainingPercentage >= 0) {
+    merchantPercentage.value = remainingPercentage;
+    sliderValue.value = merchantPercentage.value;
   }
-  return 'text-warning bg-orange-1';
-});
+};
 
-const onFeeConfigChange = () => {
-  // Force reactivity update
+const setPatientFeeToZero = () => {
+  patientPercentage.value = 0;
+  patientFixed.value = 0;
+  merchantPercentage.value = totalProcessingPercentage.value;
+  sliderValue.value = merchantPercentage.value;
 };
 
 const saveConfiguration = () => {
-  if (isValidConfiguration.value) {
-    emit('save', { ...feeConfig });
-  }
+  const config: ProcessingFeeConfig = {
+    merchantFixed: merchantFixed.value,
+    merchantPercentage: merchantPercentage.value,
+    patientFixed: patientFixed.value,
+    patientPercentage: patientPercentage.value,
+  };
+  emit('save', config);
 };
 
-// Auto-adjust patient fees to balance the total when merchant fees change
-watch([() => feeConfig.merchantFixed, () => feeConfig.merchantPercentage], () => {
-  const remainingFee = totalProcessingFee.value - calculatedMerchantFee.value;
-  if (remainingFee >= 0) {
-    // Try to distribute remaining fee proportionally
-    const currentPatientTotal = calculatedPatientFee.value;
-    if (currentPatientTotal > 0) {
-      const ratio = remainingFee / currentPatientTotal;
-      feeConfig.patientFixed *= ratio;
-      feeConfig.patientPercentage *= ratio;
-    } else {
-      // If patient has no fees, set a reasonable split
-      feeConfig.patientFixed = remainingFee * 0.5;
-      feeConfig.patientPercentage = (remainingFee * 0.5) / props.paymentAmount * 100;
-    }
+// Watch slider changes
+watch(sliderValue, (newValue) => {
+  merchantPercentage.value = newValue;
+  // Auto-adjust patient percentage
+  const remainingPercentage = totalProcessingPercentage.value - newValue;
+  if (remainingPercentage >= 0) {
+    patientPercentage.value = remainingPercentage;
   }
 });
 </script>
@@ -244,5 +236,74 @@ watch([() => feeConfig.merchantFixed, () => feeConfig.merchantPercentage], () =>
 <style scoped>
 .edit-processing-fee {
   min-width: 500px;
+}
+
+.slider-section {
+  position: relative;
+  padding-top: 40px;
+}
+
+.slider-tooltip {
+  position: absolute;
+  top: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.tooltip-percentage {
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.tooltip-amount {
+  font-size: 0.875rem;
+  color: #666;
+  text-align: center;
+}
+
+.fee-slider {
+  margin: 20px 0;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.fee-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fee-label {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.fee-inputs {
+  align-items: center;
+}
+
+.percentage-input {
+  width: 80px;
+}
+
+.fixed-input {
+  width: 80px;
+}
+
+.transaction-summary {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
 }
 </style>

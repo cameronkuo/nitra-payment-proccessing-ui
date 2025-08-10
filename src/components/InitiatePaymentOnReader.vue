@@ -3,7 +3,7 @@
     <!-- Card Reader Illustration -->
     <div class="text-center q-mb-lg">
       <div class="reader-illustration q-mb-md">
-        <q-icon name="fas fa-credit-card" size="6rem" color="primary" />
+        <q-icon color="primary" name="fas fa-credit-card" size="6rem" />
         <!-- Receipt paper illustration -->
         <div class="receipt-paper">
           <div class="receipt-lines"></div>
@@ -16,7 +16,7 @@
     <!-- Review Details Section -->
     <div class="review-section q-mb-lg">
       <div class="row items-center q-mb-md">
-        <q-icon name="fas fa-eye" class="q-mr-sm" />
+        <q-icon class="q-mr-sm" name="fas fa-eye" />
         <span class="text-h6">Review Details with Patient</span>
       </div>
       
@@ -28,17 +28,17 @@
 
     <!-- Auto-Processing Section -->
     <div class="auto-processing-section q-mb-lg">
-      <q-card flat bordered class="auto-process-card">
+      <q-card bordered class="auto-process-card" flat>
         <q-card-section class="text-center">
           <div class="text-body1 q-mb-sm">
             Auto-Processing in {{ countdown }}s
           </div>
           <q-linear-progress 
-            :value="progressValue" 
+            class="q-mb-sm" 
             color="primary" 
-            size="8px" 
             rounded 
-            class="q-mb-sm"
+            size="8px" 
+            :value="progressValue"
           />
           <div class="text-caption text-grey-6">
             Or click "Process Payment" below
@@ -49,11 +49,11 @@
 
     <!-- Reader Information -->
     <div class="reader-info q-mb-lg">
-      <q-card flat class="bg-grey-1">
+      <q-card class="bg-grey-1" flat>
         <q-card-section>
           <div class="text-subtitle2 q-mb-sm">Selected Reader</div>
           <div class="row items-center">
-            <q-icon name="fas fa-circle" color="green" size="sm" class="q-mr-sm" />
+            <q-icon class="q-mr-sm" color="green" name="fas fa-circle" size="sm" />
             <div>
               <div class="text-body2">{{ readerLabel }}</div>
               <div class="text-caption text-grey-6">{{ readerId }}</div>
@@ -65,7 +65,7 @@
 
     <!-- Payment Summary -->
     <div class="payment-summary q-mb-lg">
-      <q-card flat class="bg-grey-1">
+      <q-card class="bg-grey-1" flat>
         <q-card-section>
           <div class="text-subtitle2 q-mb-sm">Payment Summary</div>
           <div class="summary-row">
@@ -83,16 +83,16 @@
     <!-- Action Buttons -->
     <div class="row q-gutter-md">
       <q-btn
-        color="grey-7"
-        label="Cancel"
-        flat
         class="col"
+        color="grey-7"
+        flat
+        label="Cancel"
         @click="cancelPayment"
       />
       <q-btn
+        class="col"
         color="primary"
         label="Process Payment"
-        class="col"
         @click="processPayment"
       />
     </div>

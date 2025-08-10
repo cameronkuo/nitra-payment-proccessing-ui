@@ -11,6 +11,8 @@ export interface DialogConfig {
   };
   dialogProps?: Omit<QDialogProps, 'class' | 'modelValue'> & {
     class?: string | string[] | { [key: string]: boolean };
+    /** Dialog width, string with unit */
+    width?: string;
   };
   onClose?: () => void;
 }

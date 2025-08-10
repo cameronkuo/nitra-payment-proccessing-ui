@@ -2,7 +2,7 @@
   {
     "id": 48,
     "name": "New York Clinic",
-    "taxRate": "0.04500",
+    "taxRate": "0.06000",
     "createdAt": "2024-01-15T12:00:00Z",
     "updatedAt": "2024-01-15T12:00:00Z",
     "deletedAt": null

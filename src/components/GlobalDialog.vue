@@ -43,7 +43,12 @@ onBeforeUnmount(() => {
 
 <template>
   <q-dialog :model-value="dialogVisible" v-bind="configs?.dialogProps" @hide="closeDialog">
-    <q-card>
+    <q-card
+      :style="{
+        width: configs?.dialogProps?.width,
+        maxWidth: configs?.dialogProps?.width ? '100%' : undefined,
+      }"
+    >
       <template v-if="configs?.dialogSlots?.header">
         <component :is="configs.dialogSlots.header" />
       </template>

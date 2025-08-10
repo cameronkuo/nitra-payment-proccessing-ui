@@ -15,18 +15,15 @@ export const calculatePaymentTotals = (
   let patientFee = 0;
 
   if (organization && processingFeeConfig) {
-    // Calculate total processing fee
-    const totalFixedFee = organization.totalProcessingFeeFixed;
-    const totalPercentageFee = parseFloat(organization.totalProcessingFeePercentage) * amount;
-    const totalProcessingFee = totalFixedFee + totalPercentageFee;
-
     // Split fees between merchant and patient
     merchantFee = processingFeeConfig.merchantFixed + (processingFeeConfig.merchantPercentage * amount / 100);
     patientFee = processingFeeConfig.patientFixed + (processingFeeConfig.patientPercentage * amount / 100);
     
-    processingFee = totalProcessingFee;
+    // Processing fee in the summary represents what the patient pays
+    processingFee = patientFee;
   }
 
+  // Total includes only patient fee (merchant fee is paid separately by merchant)
   const total = subtotal + tax + processingFee;
 
   return {

@@ -35,17 +35,17 @@
       <div class="col-12">
         <q-btn-toggle
           v-model="paymentMethod"
-          spread
-          no-caps
-          rounded
-          unelevated
-          toggle-color="primary"
           color="white"
-          text-color="grey-8"
+          no-caps
           :options="[
             { label: 'Cash Payment', value: 'cash', icon: 'fas fa-money-bill' },
             { label: 'Card Payment', value: 'card', icon: 'fas fa-credit-card' },
           ]"
+          rounded
+          spread
+          text-color="grey-8"
+          toggle-color="primary"
+          unelevated
         />
       </div>
 
@@ -107,7 +107,6 @@ import type {
   PaymentCalculation,
   PaymentData,
   PaymentReader,
-  ProcessingFeeConfig,
 } from 'src/types/payment';
 
 const selectedLocation = ref<number | null>(null);
@@ -134,7 +133,7 @@ const onLocationChange = (locationId: number) => {
 };
 
 const generateTransactionId = (): string => {
-  return 'TXN_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  return 'TXN_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
 };
 
 const processCashPayment = (paymentData: PaymentData) => {
@@ -150,20 +149,18 @@ const processCashPayment = (paymentData: PaymentData) => {
 const processCardPayment = (paymentData: PaymentData) => {
   if (!currentLocation.value) return;
 
-  // For card payments, we need the processing fee config
-  // In a real app, this would come from the CardPayment component
-  const defaultProcessingFeeConfig: ProcessingFeeConfig = {
-    merchantFixed: 5,
-    merchantPercentage: 1.5,
-    patientFixed: 5,
-    patientPercentage: 2.0,
-  };
+  // Use the processing fee config from the CardPayment component
+  const feeConfig = paymentData.processingFeeConfig;
+  if (!feeConfig) {
+    console.error('Processing fee configuration is missing from payment data');
+    return;
+  }
 
   const calculation = calculatePaymentTotals(
     paymentData.amount,
     currentLocation.value,
     organization.value,
-    defaultProcessingFeeConfig,
+    feeConfig,
   );
 
   lastPaymentData.value = paymentData;

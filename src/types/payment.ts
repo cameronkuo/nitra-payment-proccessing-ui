@@ -40,6 +40,7 @@ export interface PaymentData {
   method: 'cash' | 'card';
   locationId: number;
   readerId?: string;
+  processingFeeConfig?: ProcessingFeeConfig;
   cardDetails?: {
     number: string;
     expiryMonth: string;
