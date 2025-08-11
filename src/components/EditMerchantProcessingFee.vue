@@ -1,11 +1,5 @@
 <template>
   <div class="edit-processing-fee q-pa-lg">
-    <!-- Header -->
-    <div class="row items-center justify-between q-mb-md">
-      <div class="text-h5">Edit Merchant Processing Fee</div>
-      <q-btn flat icon="close" round @click="$emit('close')" />
-    </div>
-
     <div class="text-body2 text-grey-6 q-mb-lg">Only applies to this transaction</div>
 
     <!-- Slider Section -->
@@ -64,8 +58,13 @@
             outlined
             step="0.01"
             type="number"
+            :max="organization.totalProcessingFeeFixed"
+            @update:model-value="
+              (value) =>
+                (patientFixed = organization.totalProcessingFeeFixed - (Number(value) || 0))
+            "
           />
-          <div class="text-grey-6">/ $0.10</div>
+          <div class="text-grey-6">/ ${{ organization.totalProcessingFeeFixed }}</div>
         </div>
       </div>
 
@@ -95,8 +94,13 @@
             outlined
             step="0.01"
             type="number"
+            :max="organization.totalProcessingFeeFixed"
+            @update:model-value="
+              (value) =>
+                (patientFixed = organization.totalProcessingFeeFixed - (Number(value) || 0))
+            "
           />
-          <div class="text-grey-6">/ $0.10</div>
+          <div class="text-grey-6">/ ${{ organization.totalProcessingFeeFixed }}</div>
         </div>
       </div>
 
@@ -164,9 +168,7 @@ const patientFixed = ref(props.initialConfig?.patientFixed ?? 0.05);
 const sliderValue = ref(merchantPercentage.value);
 
 // Computed values
-const merchantFeeAmount = computed(
-  () => (sliderValue.value * props.paymentAmount) / 100,
-);
+const merchantFeeAmount = computed(() => (sliderValue.value * props.paymentAmount) / 100);
 
 const calculatedMerchantFee = computed(
   () => (merchantPercentage.value * props.paymentAmount) / 100 + merchantFixed.value,
