@@ -1,10 +1,10 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header class="bg-white text-black">
       <q-toolbar>
         <q-btn aria-label="Menu" dense flat icon="fa fa-bars" round @click="toggleLeftDrawer" />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title>Collect Payment</q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>

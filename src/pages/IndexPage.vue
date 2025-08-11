@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="printable">
     <PaymentProcessor />
   </q-page>
 </template>
