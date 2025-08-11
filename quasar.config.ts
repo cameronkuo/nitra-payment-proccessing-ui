@@ -1,8 +1,9 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
-import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
+
+import { defineConfig } from '#q-app/wrappers';
 
 export default defineConfig((ctx) => {
   return {
@@ -21,7 +22,7 @@ export default defineConfig((ctx) => {
     extras: [
       // 'ionicons-v4',
       // 'mdi-v7',
-      // 'fontawesome-v6',
+      'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
@@ -44,7 +45,7 @@ export default defineConfig((ctx) => {
         // extendTsConfig (tsConfig) {}
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -92,6 +93,13 @@ export default defineConfig((ctx) => {
           },
           { server: false },
         ],
+
+        [
+          '@vitejs/plugin-vue-jsx',
+          {
+            // options
+          },
+        ],
       ],
     },
 
@@ -116,7 +124,7 @@ export default defineConfig((ctx) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ['Notify'],
     },
 
     // animations: 'all', // --- includes all animations
