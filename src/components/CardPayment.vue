@@ -7,7 +7,7 @@
           filled
           label="Payment Amount"
           min="0"
-          :model-value="amount"
+          :model-value="paymentStore.paymentAmount"
           prefix="$"
           :rules="[(val) => val > 0 || 'Amount must be greater than 0']"
           step="0.01"
@@ -17,7 +17,7 @@
       </div>
 
       <!-- Processing Fee Configuration -->
-      <div v-if="amount > 0" class="col-12">
+      <div v-if="paymentStore.paymentAmount > 0" class="col-12">
         <q-card bordered class="q-pa-md" flat>
           <div class="row items-center q-mb-sm">
             <div class="text-subtitle2">Processing Fee Configuration</div>
@@ -34,22 +34,22 @@
           <div class="fee-summary">
             <div class="summary-row">
               <span>Total Processing Fee:</span>
-              <span>{{ formatCurrency(totalProcessingFee) }}</span>
+              <span>{{ formatCurrency(paymentStore.totalProcessingFee) }}</span>
             </div>
             <div class="summary-row text-negative">
               <span>Merchant Fee:</span>
-              <span>{{ formatCurrency(calculatedMerchantFee) }}</span>
+              <span>{{ formatCurrency(paymentStore.calculatedMerchantFee) }}</span>
             </div>
             <div class="summary-row text-negative">
               <span>Patient Fee:</span>
-              <span>{{ formatCurrency(calculatedPatientFee) }}</span>
+              <span>{{ formatCurrency(paymentStore.calculatedPatientFee) }}</span>
             </div>
           </div>
         </q-card>
       </div>
 
       <!-- Payment Method Selection -->
-      <div v-if="amount > 0" class="col-12">
+      <div v-if="paymentStore.paymentAmount > 0" class="col-12">
         <q-btn-toggle
           v-model="paymentType"
           color="white"
@@ -67,7 +67,7 @@
       </div>
 
       <!-- Card Reader Selection -->
-      <div v-if="paymentType === 'reader' && amount > 0" class="col-12">
+      <div v-if="paymentType === 'reader' && paymentStore.paymentAmount > 0" class="col-12">
         <q-select
           v-model="selectedReader"
           emit-value
@@ -77,7 +77,7 @@
           :option-disable="(opt) => opt.status === 'offline'"
           option-label="label"
           option-value="id"
-          :options="readers"
+          :options="paymentStore.availableReaders"
         >
           <template #selected-item="scope">
             <span>{{ scope.opt.label }}</span>
@@ -102,24 +102,15 @@
                     Offline
                   </q-chip>
                 </q-item-label>
-                <q-item-label caption :class="scope.opt.status === 'offline' ? 'text-grey-4' : ''">
-                  {{ scope.opt.readerId }}
-                </q-item-label>
+                <q-item-label caption> Reader ID: {{ scope.opt.readerId }} </q-item-label>
               </q-item-section>
             </q-item>
           </template>
         </q-select>
-
-        <div v-if="!hasOnlineReaders" class="text-center q-mt-md">
-          <q-icon color="warning" name="fas fa-exclamation-triangle" size="md" />
-          <div class="text-body2 text-warning q-mt-sm">
-            No online card readers available for this location
-          </div>
-        </div>
       </div>
 
-      <!-- Manual Card Entry -->
-      <div v-if="paymentType === 'manual' && amount > 0" class="col-12">
+      <!-- Card Details Form -->
+      <div v-if="paymentType === 'manual' && paymentStore.paymentAmount > 0" class="col-12">
         <q-card bordered class="q-pa-md" flat>
           <div class="text-subtitle2 q-mb-md">Card Details</div>
 
@@ -127,10 +118,10 @@
             <div class="col-12">
               <q-input
                 v-model="cardDetails.number"
-                fill-mask
                 filled
                 label="Card Number"
                 mask="#### #### #### ####"
+                maxlength="19"
                 :rules="cardNumberRules"
               />
             </div>
@@ -147,10 +138,11 @@
             <div class="col-6">
               <q-input
                 v-model="cardDetails.expiryMonth"
-                fill-mask
                 filled
                 label="Expiry Month"
                 mask="##"
+                maxlength="2"
+                placeholder="MM"
                 :rules="expiryMonthRules"
               />
             </div>
@@ -158,10 +150,11 @@
             <div class="col-6">
               <q-input
                 v-model="cardDetails.expiryYear"
-                fill-mask
                 filled
                 label="Expiry Year"
                 mask="##"
+                maxlength="2"
+                placeholder="YY"
                 :rules="expiryYearRules"
               />
             </div>
@@ -169,11 +162,11 @@
             <div class="col-12">
               <q-input
                 v-model="cardDetails.cvv"
-                fill-mask
                 filled
                 label="CVV"
-                mask="###"
-                :rules="[(val) => !!val || 'CVV is required']"
+                mask="####"
+                maxlength="4"
+                :rules="[(val) => val.length >= 3 || 'CVV must be at least 3 digits']"
                 type="password"
               />
             </div>
@@ -182,38 +175,49 @@
       </div>
 
       <!-- Payment Summary -->
-      <div v-if="amount > 0 && location" class="col-12">
+      <div v-if="paymentStore.paymentAmount > 0 && paymentStore.currentLocation" class="col-12">
         <q-card class="payment-summary">
           <q-card-section>
             <div class="text-h6 q-mb-md">Payment Summary</div>
 
             <div class="summary-row">
               <span>Subtotal:</span>
-              <span>{{ formatCurrency(calculation.subtotal) }}</span>
+              <span>{{ formatCurrency(paymentStore.currentCalculation?.subtotal || 0) }}</span>
             </div>
 
             <div class="summary-row">
-              <span>Tax ({{ formatPercentage(parseFloat(location.taxRate)) }}):</span>
-              <span>{{ formatCurrency(calculation.tax) }}</span>
+              <span
+                >Tax ({{
+                  formatPercentage(parseFloat(paymentStore.currentLocation?.taxRate || '0'))
+                }}):</span
+              >
+              <span>{{ formatCurrency(paymentStore.currentCalculation?.tax || 0) }}</span>
             </div>
 
             <div class="summary-row">
               <span>Processing Fee:</span>
-              <span>{{ formatCurrency(calculation.patientFee) }}</span>
+              <span>{{ formatCurrency(paymentStore.currentCalculation?.patientFee || 0) }}</span>
             </div>
 
             <q-separator class="q-my-sm" />
 
             <div class="summary-row text-weight-bold text-h6">
               <span>Total:</span>
-              <span>{{ formatCurrency(calculation.total) }}</span>
+              <span>{{ formatCurrency(paymentStore.currentCalculation?.total || 0) }}</span>
             </div>
           </q-card-section>
         </q-card>
       </div>
 
       <!-- Minimum Amount Error -->
-      <div v-if="amount > 0 && location && calculation.total < 0.5" class="col-12">
+      <div
+        v-if="
+          paymentStore.paymentAmount > 0 &&
+          paymentStore.currentLocation &&
+          (paymentStore.currentCalculation?.total || 0) < 0.5
+        "
+        class="col-12"
+      >
         <q-banner class="text-warning bg-orange-1">
           <q-icon class="q-mr-sm" name="fas fa-exclamation-triangle" />
           Total amount falls below the required minimum of $0.50
@@ -256,48 +260,19 @@
 import { computed, h, reactive, ref } from 'vue';
 
 import { CommonEvent } from 'src/enums/emitter';
+import { usePaymentStore } from 'src/stores/payment-store';
 import { eventEmitter } from 'src/utils/event-emitter';
-import {
-  calculatePaymentTotals,
-  formatCurrency,
-  formatPercentage,
-} from 'src/utils/payment-calculations';
+import { formatCurrency, formatPercentage } from 'src/utils/payment-calculations';
 
 import EditMerchantProcessingFee from './EditMerchantProcessingFee.vue';
 import InitiatePaymentOnReader from './InitiatePaymentOnReader.vue';
 
-import type {
-  Location,
-  Organization,
-  PaymentData,
-  PaymentReader,
-  ProcessingFeeConfig,
-} from 'src/types/payment';
+import type { PaymentData, ProcessingFeeConfig } from 'src/types/payment';
 
-interface Props {
-  location: Location | null;
-  readers: PaymentReader[];
-  organization: Organization;
-  amount: number;
-}
-
-interface Emits {
-  (e: 'update:amount', value: number): void;
-  (e: 'process-payment', data: PaymentData): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+const paymentStore = usePaymentStore();
 
 const paymentType = ref<'reader' | 'manual'>('reader');
 const selectedReader = ref<number | null>(null);
-
-const feeConfig = ref<ProcessingFeeConfig>({
-  merchantFixed: 0.05,
-  merchantPercentage: 1.5,
-  patientFixed: 0.05,
-  patientPercentage: 2.0,
-});
 
 const cardDetails = reactive({
   number: '',
@@ -307,40 +282,15 @@ const cardDetails = reactive({
   cvv: '',
 });
 
-const totalProcessingFee = computed(() => {
-  const fixedFee = props.organization.totalProcessingFeeFixed;
-  const percentageFee = parseFloat(props.organization.totalProcessingFeePercentage) * props.amount;
-  return fixedFee + percentageFee;
-});
-
-const calculatedMerchantFee = computed(
-  () => feeConfig.value.merchantFixed + (feeConfig.value.merchantPercentage * props.amount) / 100,
+const hasOnlineReaders = computed(() =>
+  paymentStore.availableReaders.some((reader) => reader.status === 'online'),
 );
-
-const calculatedPatientFee = computed(
-  () => feeConfig.value.patientFixed + (feeConfig.value.patientPercentage * props.amount) / 100,
-);
-
-const calculation = computed(() => {
-  if (!props.location || props.amount <= 0) {
-    return {
-      subtotal: 0,
-      tax: 0,
-      processingFee: 0,
-      merchantFee: 0,
-      patientFee: 0,
-      total: 0,
-    };
-  }
-
-  return calculatePaymentTotals(props.amount, props.location, props.organization, feeConfig.value);
-});
-
-const hasOnlineReaders = computed(() => props.readers.some((reader) => reader.status === 'online'));
 
 const canProcessPayment = computed(() => {
   const baseRequirements =
-    props.amount > 0 && props.location !== null && calculation.value.total >= 0.5;
+    paymentStore.paymentAmount > 0 &&
+    paymentStore.currentLocation !== null &&
+    (paymentStore.currentCalculation?.total || 0) >= 0.5;
 
   if (paymentType.value === 'reader') {
     return baseRequirements && selectedReader.value !== null && hasOnlineReaders.value;
@@ -383,20 +333,19 @@ const expiryYearRules = [
 
 const onAmountChange = (value: string | number | null) => {
   const numValue = typeof value === 'string' ? parseFloat(value) : value || 0;
-  emit('update:amount', numValue);
+  paymentStore.setPaymentAmount(numValue);
 };
 
 const openFeeDialog = () => {
   eventEmitter.emit(CommonEvent.OPEN_DIALOG, {
-    title: '',
-    showClose: false,
+    title: 'Edit Merchant Processing Fee',
     children: () =>
       h(EditMerchantProcessingFee, {
-        paymentAmount: props.amount,
-        organization: props.organization,
-        initialConfig: feeConfig.value,
+        paymentAmount: paymentStore.paymentAmount,
+        organization: paymentStore.organization,
+        initialConfig: paymentStore.processingFeeConfig,
         onSave: (config: ProcessingFeeConfig) => {
-          feeConfig.value = config;
+          paymentStore.setProcessingFeeConfig(config);
           eventEmitter.emit(CommonEvent.CLOSE_DIALOG);
         },
         onClose: () => {
@@ -407,35 +356,37 @@ const openFeeDialog = () => {
 };
 
 const initiateReaderPayment = () => {
-  if (!canProcessPayment.value || !props.location || !selectedReader.value) return;
+  if (!canProcessPayment.value || !paymentStore.currentLocation || selectedReader.value === null)
+    return;
 
-  const reader = props.readers.find((r) => r.id === selectedReader.value);
-  if (!reader || reader.status !== 'online') return;
-
-  const paymentData: PaymentData = {
-    amount: props.amount,
-    method: 'card',
-    locationId: props.location.id,
-    readerId: reader.readerId,
-    processingFeeConfig: feeConfig.value,
-  };
+  const selectedReaderObj = paymentStore.availableReaders.find(
+    (r) => r.id === selectedReader.value,
+  );
+  if (!selectedReaderObj) return;
 
   eventEmitter.emit(CommonEvent.OPEN_DIALOG, {
     title: '',
     showClose: false,
-    dialogProps: {
-      persistent: true,
-    },
     children: () =>
       h(InitiatePaymentOnReader, {
-        paymentData,
-        calculation: calculation.value,
-        reader,
-        onProcessPayment: () => {
-          eventEmitter.emit(CommonEvent.CLOSE_DIALOG);
-          emit('process-payment', paymentData);
+        paymentData: {
+          amount: paymentStore.paymentAmount,
+          method: 'card' as const,
+          locationId: paymentStore.currentLocation?.id || 0,
+          readerId: selectedReader.value?.toString() || '',
+          processingFeeConfig: paymentStore.processingFeeConfig,
         },
-        onCancel: () => {
+        reader: selectedReaderObj,
+        calculation: paymentStore.currentCalculation || {
+          subtotal: 0,
+          tax: 0,
+          processingFee: 0,
+          merchantFee: 0,
+          patientFee: 0,
+          total: 0,
+        },
+        'onProcess-payment': () => {
+          processPayment();
           eventEmitter.emit(CommonEvent.CLOSE_DIALOG);
         },
       }),
@@ -443,28 +394,28 @@ const initiateReaderPayment = () => {
 };
 
 const processPayment = () => {
-  if (!canProcessPayment.value || !props.location) return;
+  if (!canProcessPayment.value || !paymentStore.currentLocation) return;
 
   const paymentData: PaymentData = {
-    amount: props.amount,
+    amount: paymentStore.paymentAmount,
     method: 'card',
-    locationId: props.location.id,
-    processingFeeConfig: feeConfig.value,
+    locationId: paymentStore.currentLocation.id,
+    processingFeeConfig: paymentStore.processingFeeConfig,
   };
 
   if (paymentType.value === 'reader' && selectedReader.value) {
-    const reader = props.readers.find((r) => r.id === selectedReader.value);
-    if (reader && reader.status === 'online') {
-      paymentData.readerId = reader.readerId;
-    } else {
-      // Should not happen due to validation, but safety check
-      return;
-    }
+    paymentData.readerId = selectedReader.value.toString();
   } else if (paymentType.value === 'manual') {
-    paymentData.cardDetails = { ...cardDetails };
+    paymentData.cardDetails = {
+      number: cardDetails.number,
+      expiryMonth: cardDetails.expiryMonth.padStart(2, '0'),
+      expiryYear: cardDetails.expiryYear.padStart(2, '0'),
+      cvv: cardDetails.cvv,
+      cardholderName: cardDetails.cardholderName,
+    };
   }
 
-  emit('process-payment', paymentData);
+  paymentStore.processCardPayment(paymentData);
 };
 </script>
 
@@ -481,6 +432,10 @@ const processPayment = () => {
 }
 
 .fee-summary .summary-row {
-  font-size: 0.875rem;
+  font-size: 14px;
+}
+
+.card-payment .q-card {
+  border: 1px solid #e0e0e0;
 }
 </style>

@@ -10,7 +10,7 @@
   {
     "id": 75,
     "name": "Los Angeles Clinic",
-    "taxRate": "0.05500",
+    "taxRate": "0.04500",
     "createdAt": "2024-03-08T12:00:00Z",
     "updatedAt": "2024-03-08T12:00:00Z",
     "deletedAt": null

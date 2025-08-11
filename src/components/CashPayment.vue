@@ -7,7 +7,7 @@
           filled
           label="Payment Amount"
           min="0"
-          :model-value="amount"
+          :model-value="paymentStore.paymentAmount"
           prefix="$"
           :rules="[val => val > 0 || 'Amount must be greater than 0']"
           step="0.01"
@@ -17,33 +17,33 @@
       </div>
 
       <!-- Payment Summary -->
-      <div v-if="amount > 0 && location" class="col-12">
+      <div v-if="paymentStore.paymentAmount > 0 && paymentStore.currentLocation" class="col-12">
         <q-card class="payment-summary">
           <q-card-section>
             <div class="text-h6 q-mb-md">Payment Summary</div>
             
             <div class="summary-row">
               <span>Subtotal:</span>
-              <span>{{ formatCurrency(calculation.subtotal) }}</span>
+              <span>{{ formatCurrency(paymentStore.currentCalculation?.subtotal || 0) }}</span>
             </div>
             
             <div class="summary-row">
-              <span>Tax ({{ formatPercentage(parseFloat(location.taxRate)) }}):</span>
-              <span>{{ formatCurrency(calculation.tax) }}</span>
+              <span>Tax ({{ formatPercentage(parseFloat(paymentStore.currentLocation?.taxRate || '0')) }}):</span>
+              <span>{{ formatCurrency(paymentStore.currentCalculation?.tax || 0) }}</span>
             </div>
             
             <q-separator class="q-my-sm" />
             
             <div class="summary-row text-weight-bold text-h6">
               <span>Total:</span>
-              <span>{{ formatCurrency(calculation.total) }}</span>
+              <span>{{ formatCurrency(paymentStore.currentCalculation?.total || 0) }}</span>
             </div>
           </q-card-section>
         </q-card>
       </div>
 
       <!-- Minimum Amount Error -->
-      <div v-if="amount > 0 && location && calculation.total < 0.5" class="col-12">
+      <div v-if="paymentStore.paymentAmount > 0 && paymentStore.currentLocation && (paymentStore.currentCalculation?.total || 0) < 0.5" class="col-12">
         <q-banner class="text-warning bg-orange-1">
           <q-icon class="q-mr-sm" name="fas fa-exclamation-triangle" />
           Total amount falls below the required minimum of $0.50
@@ -70,57 +70,34 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { calculatePaymentTotals, formatCurrency, formatPercentage } from 'src/utils/payment-calculations';
+import { usePaymentStore } from 'src/stores/payment-store';
+import { formatCurrency, formatPercentage } from 'src/utils/payment-calculations';
 
-import type { Location, PaymentData } from 'src/types/payment';
+import type { PaymentData } from 'src/types/payment';
 
-interface Props {
-  location: Location | null;
-  amount: number;
-}
-
-interface Emits {
-  (e: 'update:amount', value: number): void;
-  (e: 'process-payment', data: PaymentData): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
-
-const calculation = computed(() => {
-  if (!props.location || props.amount <= 0) {
-    return {
-      subtotal: 0,
-      tax: 0,
-      processingFee: 0,
-      merchantFee: 0,
-      patientFee: 0,
-      total: 0
-    };
-  }
-  
-  return calculatePaymentTotals(props.amount, props.location);
-});
+const paymentStore = usePaymentStore();
 
 const canProcessPayment = computed(() => 
-  props.amount > 0 && props.location !== null && calculation.value.total >= 0.5
+  paymentStore.paymentAmount > 0 && 
+  paymentStore.currentLocation !== null && 
+  (paymentStore.currentCalculation?.total || 0) >= 0.5
 );
 
 const onAmountChange = (value: string | number | null) => {
   const numValue = typeof value === 'string' ? parseFloat(value) : (value || 0);
-  emit('update:amount', numValue);
+  paymentStore.setPaymentAmount(numValue);
 };
 
 const processPayment = () => {
-  if (!canProcessPayment.value || !props.location) return;
+  if (!canProcessPayment.value || !paymentStore.currentLocation) return;
 
   const paymentData: PaymentData = {
-    amount: props.amount,
+    amount: paymentStore.paymentAmount,
     method: 'cash',
-    locationId: props.location.id
+    locationId: paymentStore.currentLocation.id
   };
 
-  emit('process-payment', paymentData);
+  paymentStore.processCashPayment(paymentData);
 };
 </script>
 
