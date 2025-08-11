@@ -9,7 +9,7 @@
           min="0"
           :model-value="paymentStore.paymentAmount"
           prefix="$"
-          :rules="[val => val > 0 || 'Amount must be greater than 0']"
+          :rules="[(val) => val > 0 || 'Amount must be greater than 0']"
           step="0.01"
           type="number"
           @update:model-value="onAmountChange"
@@ -21,19 +21,23 @@
         <q-card class="payment-summary">
           <q-card-section>
             <div class="text-h6 q-mb-md">Payment Summary</div>
-            
+
             <div class="summary-row">
               <span>Subtotal:</span>
               <span>{{ formatCurrency(paymentStore.currentCalculation?.subtotal || 0) }}</span>
             </div>
-            
+
             <div class="summary-row">
-              <span>Tax ({{ formatPercentage(parseFloat(paymentStore.currentLocation?.taxRate || '0')) }}):</span>
+              <span
+                >Tax ({{
+                  formatPercentage(parseFloat(paymentStore.currentLocation?.taxRate || '0'))
+                }}):</span
+              >
               <span>{{ formatCurrency(paymentStore.currentCalculation?.tax || 0) }}</span>
             </div>
-            
+
             <q-separator class="q-my-sm" />
-            
+
             <div class="summary-row text-weight-bold text-h6">
               <span>Total:</span>
               <span>{{ formatCurrency(paymentStore.currentCalculation?.total || 0) }}</span>
@@ -43,10 +47,17 @@
       </div>
 
       <!-- Minimum Amount Error -->
-      <div v-if="paymentStore.paymentAmount > 0 && paymentStore.currentLocation && (paymentStore.currentCalculation?.total || 0) < 0.5" class="col-12">
+      <div
+        v-if="
+          paymentStore.paymentAmount > 0 &&
+          paymentStore.currentLocation &&
+          (paymentStore.currentCalculation?.total || 0) < MINIMUM_PAYMENT_AMOUNT
+        "
+        class="col-12"
+      >
         <q-banner class="text-warning bg-orange-1">
           <q-icon class="q-mr-sm" name="fas fa-exclamation-triangle" />
-          Total amount falls below the required minimum of $0.50
+          Total amount falls below the required minimum of {{ MINIMUM_PAYMENT_AMOUNT_FORMATTED }}
         </q-banner>
       </div>
 
@@ -70,6 +81,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { MINIMUM_PAYMENT_AMOUNT, MINIMUM_PAYMENT_AMOUNT_FORMATTED } from 'src/constants/payment';
 import { usePaymentStore } from 'src/stores/payment-store';
 import { formatCurrency, formatPercentage } from 'src/utils/payment-calculations';
 
@@ -77,14 +89,15 @@ import type { PaymentData } from 'src/types/payment';
 
 const paymentStore = usePaymentStore();
 
-const canProcessPayment = computed(() => 
-  paymentStore.paymentAmount > 0 && 
-  paymentStore.currentLocation !== null && 
-  (paymentStore.currentCalculation?.total || 0) >= 0.5
+const canProcessPayment = computed(
+  () =>
+    paymentStore.paymentAmount > 0 &&
+    paymentStore.currentLocation !== null &&
+    (paymentStore.currentCalculation?.total || 0) >= MINIMUM_PAYMENT_AMOUNT,
 );
 
 const onAmountChange = (value: string | number | null) => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : (value || 0);
+  const numValue = typeof value === 'string' ? parseFloat(value) : value || 0;
   paymentStore.setPaymentAmount(numValue);
 };
 
@@ -94,7 +107,7 @@ const processPayment = () => {
   const paymentData: PaymentData = {
     amount: paymentStore.paymentAmount,
     method: 'cash',
-    locationId: paymentStore.currentLocation.id
+    locationId: paymentStore.currentLocation.id,
   };
 
   paymentStore.processCashPayment(paymentData);

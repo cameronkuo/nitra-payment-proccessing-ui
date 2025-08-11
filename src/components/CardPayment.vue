@@ -214,13 +214,13 @@
         v-if="
           paymentStore.paymentAmount > 0 &&
           paymentStore.currentLocation &&
-          (paymentStore.currentCalculation?.total || 0) < 0.5
+          (paymentStore.currentCalculation?.total || 0) < MINIMUM_PAYMENT_AMOUNT
         "
         class="col-12"
       >
         <q-banner class="text-warning bg-orange-1">
           <q-icon class="q-mr-sm" name="fas fa-exclamation-triangle" />
-          Total amount falls below the required minimum of $0.50
+          Total amount falls below the required minimum of {{ MINIMUM_PAYMENT_AMOUNT_FORMATTED }}
         </q-banner>
       </div>
 
@@ -259,6 +259,7 @@
 <script setup lang="ts">
 import { computed, h, reactive, ref } from 'vue';
 
+import { MINIMUM_PAYMENT_AMOUNT, MINIMUM_PAYMENT_AMOUNT_FORMATTED } from 'src/constants/payment';
 import { CommonEvent } from 'src/enums/emitter';
 import { usePaymentStore } from 'src/stores/payment-store';
 import { eventEmitter } from 'src/utils/event-emitter';
@@ -290,7 +291,7 @@ const canProcessPayment = computed(() => {
   const baseRequirements =
     paymentStore.paymentAmount > 0 &&
     paymentStore.currentLocation !== null &&
-    (paymentStore.currentCalculation?.total || 0) >= 0.5;
+    (paymentStore.currentCalculation?.total || 0) >= MINIMUM_PAYMENT_AMOUNT;
 
   if (paymentType.value === 'reader') {
     return baseRequirements && selectedReader.value !== null && hasOnlineReaders.value;
