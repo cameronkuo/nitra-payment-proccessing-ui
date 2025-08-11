@@ -54,11 +54,11 @@
             v-model.number="merchantFixed"
             class="fixed-input"
             dense
+            :max="organization.totalProcessingFeeFixed"
             min="0"
             outlined
             step="0.01"
             type="number"
-            :max="organization.totalProcessingFeeFixed"
             @update:model-value="
               (value) =>
                 (patientFixed = organization.totalProcessingFeeFixed - (Number(value) || 0))
@@ -90,11 +90,11 @@
             v-model.number="patientFixed"
             class="fixed-input"
             dense
+            :max="organization.totalProcessingFeeFixed"
             min="0"
             outlined
             step="0.01"
             type="number"
-            :max="organization.totalProcessingFeeFixed"
             @update:model-value="
               (value) =>
                 (patientFixed = organization.totalProcessingFeeFixed - (Number(value) || 0))

@@ -126,7 +126,7 @@ interface Emits {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+defineEmits<Emits>();
 
 const formatDate = (date: Date): string => {
   return date.toLocaleDateString('en-US', {

@@ -35,7 +35,10 @@ const openSimpleDialog = () => {
         'This is the content of the simple dialog. You can close it by clicking the close button, clicking outside, or pressing ESC.',
       ),
     onClose: () => {
-      console.log('Simple dialog closed');
+      $q.notify({
+        message: 'Dialog closed',
+        color: 'info',
+      });
     },
   };
   eventEmitter.emit(CommonEvent.OPEN_DIALOG, config);
