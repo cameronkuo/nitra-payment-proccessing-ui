@@ -1,3 +1,4 @@
 - [ ] Confirm questions in [Problem](PROBLEM.md)
 - [ ] Update layout to match figma design
 - [ ] Mobile version support (RWD)
+- [ ] Multi-language support (i18n)
