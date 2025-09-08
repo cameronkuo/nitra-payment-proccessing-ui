@@ -1,21 +1,6 @@
 <template>
   <div class="cash-payment">
     <div class="row q-gutter-md">
-      <!-- Amount Input -->
-      <div class="col-12">
-        <q-input
-          filled
-          label="Payment Amount"
-          min="0"
-          :model-value="paymentStore.paymentAmount"
-          prefix="$"
-          :rules="[(val) => val > 0 || 'Amount must be greater than 0']"
-          step="0.01"
-          type="number"
-          @update:model-value="onAmountChange"
-        />
-      </div>
-
       <!-- Payment Summary -->
       <div v-if="paymentStore.paymentAmount > 0 && paymentStore.currentLocation" class="col-12">
         <q-card class="payment-summary">
@@ -95,11 +80,6 @@ const canProcessPayment = computed(
     paymentStore.currentLocation !== null &&
     (paymentStore.currentCalculation?.total || 0) >= MINIMUM_PAYMENT_AMOUNT,
 );
-
-const onAmountChange = (value: string | number | null) => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value || 0;
-  paymentStore.setPaymentAmount(numValue);
-};
 
 const processPayment = () => {
   if (!canProcessPayment.value || !paymentStore.currentLocation) return;

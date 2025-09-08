@@ -1,21 +1,6 @@
 <template>
   <div class="card-payment">
     <div class="row q-gutter-md">
-      <!-- Amount Input -->
-      <div class="col-12">
-        <q-input
-          filled
-          label="Payment Amount"
-          min="0"
-          :model-value="paymentStore.paymentAmount"
-          prefix="$"
-          :rules="[(val) => val > 0 || 'Amount must be greater than 0']"
-          step="0.01"
-          type="number"
-          @update:model-value="onAmountChange"
-        />
-      </div>
-
       <!-- Processing Fee Configuration -->
       <div v-if="paymentStore.paymentAmount > 0" class="col-12">
         <q-card bordered class="q-pa-md" flat>
@@ -331,11 +316,6 @@ const expiryYearRules = [
     return year >= currentYear || 'Card has expired';
   },
 ];
-
-const onAmountChange = (value: string | number | null) => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value || 0;
-  paymentStore.setPaymentAmount(numValue);
-};
 
 const openFeeDialog = () => {
   eventEmitter.emit(CommonEvent.OPEN_DIALOG, {
