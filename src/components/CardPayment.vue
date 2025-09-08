@@ -261,20 +261,27 @@ const initiateManualCardInput = () => {
 const processManualCardPayment = (cardDetails: {
   number: string;
   cardholderName: string;
-  expiryMonth: string;
-  expiryYear: string;
+  expirationDate: string;
   cvv: string;
   country: string;
   zipcode: string;
 }) => {
   if (!paymentStore.currentLocation) return;
 
+  const expirationParts = cardDetails.expirationDate.split('/');
+  const expiryMonth = expirationParts[0] || '';
+  const expiryYear = expirationParts[1] || '';
+  
   const paymentData: PaymentData = {
     amount: paymentStore.paymentAmount,
     method: 'card',
     locationId: paymentStore.currentLocation.id,
     processingFeeConfig: paymentStore.processingFeeConfig,
-    cardDetails,
+    cardDetails: {
+      ...cardDetails,
+      expiryMonth: expiryMonth.padStart(2, '0'),
+      expiryYear: expiryYear.padStart(2, '0'),
+    },
   };
 
   paymentStore.processCardPayment(paymentData);

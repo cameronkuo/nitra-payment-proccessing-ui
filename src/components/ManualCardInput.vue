@@ -1,38 +1,38 @@
 <template>
-  <div class="manual-card-input q-pa-lg">
+  <div class="min-w-[400px] max-w-[500px] p-6">
     <!-- Card Input Illustration -->
-    <div class="text-center q-mb-lg">
-      <div class="card-illustration q-mb-md">
+    <div class="text-center mb-6">
+      <div class="relative flex flex-col items-center justify-center mb-4">
         <q-icon color="primary" name="fas fa-credit-card" size="6rem" />
         <!-- Card details form overlay -->
-        <div class="card-form-overlay">
-          <div class="form-lines"></div>
-          <div class="form-lines"></div>
-          <div class="form-lines"></div>
+        <div class="w-[60px] h-[40px] bg-white border border-gray-300 rounded relative -mt-[10px] p-1">
+          <div class="h-[2px] bg-gray-200 mb-[3px] rounded"></div>
+          <div class="h-[2px] bg-gray-200 mb-[3px] rounded"></div>
+          <div class="h-[2px] bg-gray-200 rounded"></div>
         </div>
       </div>
     </div>
 
     <!-- Review Details Section -->
-    <div class="review-section q-mb-lg">
-      <div class="row items-center q-mb-md">
-        <q-icon class="q-mr-sm" name="fas fa-keyboard" />
+    <div class="text-center mb-6">
+      <div class="flex items-center justify-center mb-4">
+        <q-icon class="mr-2" name="fas fa-keyboard" />
         <span class="text-h6">Input Card Details Manually</span>
       </div>
       
-      <p class="text-body2 text-grey-7 q-mb-md">
+      <p class="text-sm text-gray-600 mb-4">
         Enter the card details below and review the payment summary before processing.
       </p>
     </div>
 
     <!-- Card Details Form -->
-    <div class="card-form q-mb-lg">
-      <q-card bordered flat>
+    <div class="mb-6">
+      <q-card class="border border-gray-300" flat>
         <q-card-section>
-          <div class="text-subtitle2 q-mb-md">Card Details</div>
+          <div class="text-base font-medium mb-4">Card Details</div>
 
-          <div class="row q-gutter-md">
-            <div class="col-12">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
               <q-input
                 v-model="cardDetails.number"
                 filled
@@ -43,7 +43,7 @@
               />
             </div>
 
-            <div class="col-12">
+            <div class="col-span-2">
               <q-input
                 v-model="cardDetails.cardholderName"
                 filled
@@ -52,31 +52,19 @@
               />
             </div>
 
-            <div class="col-6">
+            <div class="col-span-1">
               <q-input
-                v-model="cardDetails.expiryMonth"
+                v-model="cardDetails.expirationDate"
                 filled
-                label="Expiry Month"
-                mask="##"
-                maxlength="2"
-                placeholder="MM"
-                :rules="expiryMonthRules"
+                label="Expiration Date"
+                mask="##/##"
+                maxlength="5"
+                placeholder="MM/YY"
+                :rules="expirationDateRules"
               />
             </div>
 
-            <div class="col-6">
-              <q-input
-                v-model="cardDetails.expiryYear"
-                filled
-                label="Expiry Year"
-                mask="##"
-                maxlength="2"
-                placeholder="YY"
-                :rules="expiryYearRules"
-              />
-            </div>
-
-            <div class="col-12">
+            <div class="col-span-1">
               <q-input
                 v-model="cardDetails.cvv"
                 filled
@@ -88,7 +76,7 @@
               />
             </div>
 
-            <div class="col-12">
+            <div class="col-span-1">
               <q-select
                 v-model="cardDetails.country"
                 emit-value
@@ -102,7 +90,7 @@
               />
             </div>
 
-            <div class="col-12">
+            <div class="col-span-1">
               <q-input
                 v-model="cardDetails.zipcode"
                 filled
@@ -117,33 +105,33 @@
     </div>
 
     <!-- Payment Summary -->
-    <div class="payment-summary q-mb-lg">
-      <q-card class="bg-grey-1" flat>
+    <div class="mb-6">
+      <q-card class="bg-gray-50" flat>
         <q-card-section>
-          <div class="text-subtitle2 q-mb-sm">Payment Summary</div>
-          <div class="summary-row">
+          <div class="text-base font-medium mb-2">Payment Summary</div>
+          <div class="flex justify-between items-center py-1">
             <span>Amount:</span>
             <span>{{ formatCurrency(paymentData.amount) }}</span>
           </div>
-          <div class="summary-row">
+          <div class="flex justify-between items-center py-1">
             <span>Total:</span>
-            <span class="text-weight-bold">{{ formatCurrency(calculation.total) }}</span>
+            <span class="font-bold">{{ formatCurrency(calculation.total) }}</span>
           </div>
         </q-card-section>
       </q-card>
     </div>
 
     <!-- Action Buttons -->
-    <div class="row q-gutter-md">
+    <div class="flex gap-4">
       <q-btn
-        class="col"
+        class="flex-1"
         color="grey-7"
         flat
         label="Cancel"
         @click="cancelPayment"
       />
       <q-btn
-        class="col"
+        class="flex-1"
         color="primary"
         :disabled="!isValidCardDetails"
         label="Process Payment"
@@ -169,8 +157,7 @@ interface Emits {
   (e: 'process-payment', cardDetails: {
     number: string;
     cardholderName: string;
-    expiryMonth: string;
-    expiryYear: string;
+    expirationDate: string;
     cvv: string;
     country: string;
     zipcode: string;
@@ -184,8 +171,7 @@ const emit = defineEmits<Emits>();
 const cardDetails = reactive({
   number: '',
   cardholderName: '',
-  expiryMonth: '',
-  expiryYear: '',
+  expirationDate: '',
   cvv: '',
   country: '',
   zipcode: '',
@@ -210,6 +196,28 @@ const countryOptions = [
   { code: 'FI', name: 'Finland' },
 ];
 
+const expirationDateRules = [
+  (val: string) => !!val || 'Expiration date is required',
+  (val: string) => {
+    if (!val || val.length !== 5) return 'Expiration date must be in MM/YY format';
+    const [monthStr, yearStr] = val.split('/');
+    if (!monthStr || !yearStr || monthStr.length !== 2 || yearStr.length !== 2) {
+      return 'Expiration date must be in MM/YY format';
+    }
+    const month = parseInt(monthStr);
+    const year = parseInt(yearStr);
+    if (month < 1 || month > 12) {
+      return 'Month must be between 01 and 12';
+    }
+    const currentYear = new Date().getFullYear() % 100;
+    const currentMonth = new Date().getMonth() + 1;
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      return 'Card has expired';
+    }
+    return true;
+  },
+];
+
 const zipcodeRules = [
   (val: string) => !!val || 'ZIP code is required',
   (val: string) => {
@@ -225,11 +233,14 @@ const zipcodeRules = [
 ];
 
 const isValidCardDetails = computed(() => {
+  const expirationValid = cardDetails.expirationDate.length === 5 && 
+    cardDetails.expirationDate.includes('/') &&
+    cardDetails.expirationDate.split('/').every(part => part.length === 2);
+  
   return (
     cardDetails.number.replace(/\s/g, '').length >= 16 &&
     cardDetails.cardholderName.length > 0 &&
-    cardDetails.expiryMonth.length === 2 &&
-    cardDetails.expiryYear.length === 2 &&
+    expirationValid &&
     cardDetails.cvv.length >= 3 &&
     cardDetails.country.length > 0 &&
     cardDetails.zipcode.length >= 3
@@ -241,22 +252,6 @@ const cardNumberRules = [
   (val: string) => val.replace(/\s/g, '').length >= 16 || 'Card number must be at least 16 digits',
 ];
 
-const expiryMonthRules = [
-  (val: string) => !!val || 'Expiry month is required',
-  (val: string) => {
-    const month = parseInt(val);
-    return (month >= 1 && month <= 12) || 'Month must be between 01 and 12';
-  },
-];
-
-const expiryYearRules = [
-  (val: string) => !!val || 'Expiry year is required',
-  (val: string) => {
-    const currentYear = new Date().getFullYear() % 100;
-    const year = parseInt(val);
-    return year >= currentYear || 'Card has expired';
-  },
-];
 
 const processPayment = () => {
   if (!isValidCardDetails.value) return;
@@ -264,8 +259,7 @@ const processPayment = () => {
   emit('process-payment', {
     number: cardDetails.number,
     cardholderName: cardDetails.cardholderName,
-    expiryMonth: cardDetails.expiryMonth.padStart(2, '0'),
-    expiryYear: cardDetails.expiryYear.padStart(2, '0'),
+    expirationDate: cardDetails.expirationDate,
     cvv: cardDetails.cvv,
     country: cardDetails.country,
     zipcode: cardDetails.zipcode,
@@ -278,53 +272,5 @@ const cancelPayment = () => {
 </script>
 
 <style scoped>
-.manual-card-input {
-  min-width: 400px;
-  max-width: 500px;
-}
-
-.card-illustration {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.card-form-overlay {
-  width: 60px;
-  height: 40px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  position: relative;
-  margin-top: -10px;
-  padding: 4px;
-}
-
-.form-lines {
-  height: 2px;
-  background: #eee;
-  margin-bottom: 3px;
-  border-radius: 1px;
-}
-
-.form-lines:last-child {
-  margin-bottom: 0;
-}
-
-.review-section {
-  text-align: center;
-}
-
-.card-form .q-card {
-  border: 1px solid #e0e0e0;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2px 0;
-}
+/* All styles converted to Tailwind CSS classes */
 </style>
