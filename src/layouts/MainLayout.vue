@@ -28,6 +28,8 @@
 import { computed, ref, watch } from 'vue';
 
 import useBreakpoints from 'src/composables/useBreakpoints';
+import * as enums from 'src/enums';
+import { eventEmitter } from 'src/utils/event-emitter';
 
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
 
@@ -82,4 +84,8 @@ watch(
 );
 
 leftDrawerOpen.value = isDesktop.value;
+
+eventEmitter.on(enums.emitter.CommonEvent.TOGGLE_SIDEBAR, (open: boolean) => {
+  leftDrawerOpen.value = open || !leftDrawerOpen.value;
+});
 </script>
