@@ -36,10 +36,10 @@
     <!-- Payment Form State -->
     <div
       v-if="paymentStore.paymentState === 'form'"
-      class="grid sm:grid-cols-[1fr_auto] border border-gray-300 rounded-lg"
+      class="grid md:grid-cols-[1fr_auto] border border-gray-300 rounded-lg"
     >
       <!-- Amount Input -->
-      <div class="sm:row-span-2 p-5 border-r border-gray-300 flex flex-col items-center">
+      <div class="md:row-span-2 p-5 border-r border-gray-300 flex flex-col items-center">
         <p class="text-gray-700">Enter Amount</p>
         <div class="flex font-bold">
           <span class="text-2xl">$</span>
@@ -61,7 +61,7 @@
       </div>
 
       <!-- Payment Content -->
-      <div class="p-5 sm:max-w-md space-y-5">
+      <div class="p-5 md:max-w-md space-y-5">
         <!-- Summary Content -->
         <div class="grid grid-cols-[auto_1fr_auto] gap-2 mb-4 text-gray-700">
           <span>Subtotal</span>

@@ -1,6 +1,6 @@
 <template>
   <hr />
-  <div v-if="paymentStore.paymentAmount > 0 && paymentStore.currentLocation">
+  <div v-if="paymentStore.paymentAmount > 0">
     <!-- Total Amount Summary -->
     <div class="flex items-center">
       <span class="font-bold">Pay by Cash Total</span>
