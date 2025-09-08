@@ -1,10 +1,15 @@
-import type { Location, Organization, ProcessingFeeConfig, PaymentCalculation } from 'src/types/payment';
+import type {
+  Location,
+  Organization,
+  PaymentCalculation,
+  ProcessingFeeConfig,
+} from 'src/types/payment';
 
 export const calculatePaymentTotals = (
   amount: number,
   location: Location,
   organization?: Organization,
-  processingFeeConfig?: ProcessingFeeConfig
+  processingFeeConfig?: ProcessingFeeConfig,
 ): PaymentCalculation => {
   const subtotal = amount;
   const taxRate = parseFloat(location.taxRate);
@@ -16,9 +21,11 @@ export const calculatePaymentTotals = (
 
   if (organization && processingFeeConfig) {
     // Split fees between merchant and patient
-    merchantFee = processingFeeConfig.merchantFixed + (processingFeeConfig.merchantPercentage * amount / 100);
-    patientFee = processingFeeConfig.patientFixed + (processingFeeConfig.patientPercentage * amount / 100);
-    
+    merchantFee =
+      processingFeeConfig.merchantFixed + (processingFeeConfig.merchantPercentage * amount) / 100;
+    patientFee =
+      processingFeeConfig.patientFixed + (processingFeeConfig.patientPercentage * amount) / 100;
+
     // Processing fee in the summary represents what the patient pays
     processingFee = patientFee;
   }
@@ -32,15 +39,15 @@ export const calculatePaymentTotals = (
     processingFee,
     merchantFee,
     patientFee,
-    total
+    total,
   };
 };
 
-export const formatCurrency = (amount: number): string => {
+export const formatCurrency = (amount?: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
-  }).format(amount);
+    currency: 'USD',
+  }).format(amount || 0);
 };
 
 export const formatPercentage = (value: number): string => {
