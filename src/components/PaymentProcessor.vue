@@ -5,6 +5,7 @@
       <!-- Location Selector -->
       <q-select
         v-model="paymentStore.selectedLocation"
+        dense
         emit-value
         filled
         map-options
@@ -13,6 +14,9 @@
         :options="paymentStore.locations"
         @update:model-value="paymentStore.setLocation"
       >
+        <template #prepend>
+          <q-icon class="text-sm" name="fa-solid fa-location-dot" />
+        </template>
         <template #selected-item="scope">
           <span>{{ scope.opt.name }}</span>
         </template>
@@ -39,9 +43,12 @@
         <p class="text-gray-700">Enter Amount</p>
         <div class="flex font-bold">
           <span class="text-2xl">$</span>
+          &nbsp;
           <BigNumberInput
             class="text-5xl min-w-5 outline-none"
+            :min="0"
             :model-value="paymentStore.paymentAmount"
+            :step="0.01"
             @update:model-value="onAmountChange"
           />
         </div>
@@ -54,33 +61,53 @@
       </div>
 
       <!-- Payment Content -->
-      <div class="p-5 w-96">
+      <div class="p-5 sm:max-w-md space-y-5">
+        <!-- Summary Content -->
+        <div class="grid grid-cols-[auto_1fr_auto] gap-2 mb-4 text-gray-700">
+          <span>Subtotal</span>
+          <div />
+          <span>{{ formatCurrency(paymentStore.currentCalculation?.subtotal) }}</span>
+          <span>Tax({{ numeral(paymentStore.currentLocation?.taxRate).format('0.00%') }})</span>
+          <div />
+          <span>{{ formatCurrency(paymentStore.currentCalculation?.tax) }}</span>
+        </div>
+
+        <hr />
+
+        <div class="grid grid-cols-[auto_1fr_auto] gap-2 mb-4">
+          <span>Total:</span>
+          <div />
+          <span>{{ formatCurrency(paymentStore.currentCalculation?.total) }}</span>
+        </div>
+
         <!-- Payment Method Selection -->
         <q-btn-toggle
           v-model="paymentStore.paymentMethod"
+          class="border border-teal-100"
           color="white"
           no-caps
+          no-wrap
           :options="[
-            { label: 'Cash Payment', value: 'cash', icon: 'fas fa-money-bill' },
-            { label: 'Card Payment', value: 'card', icon: 'fas fa-credit-card' },
+            { label: 'Cash Payment', value: 'cash', icon: 'fa-solid fa-sack-dollar text-sm' },
+            { label: 'Card Payment', value: 'card', icon: 'fa-solid fa-credit-card text-sm' },
           ]"
-          rounded
           spread
-          text-color="grey-8"
-          toggle-color="primary"
+          text-color="teal-9"
+          toggle-color="teal-100"
+          toggle-text-color="teal-9"
           unelevated
           @update:model-value="paymentStore.setPaymentMethod"
         />
 
         <!-- Cash Payment -->
-        <div v-if="paymentStore.paymentMethod === 'cash'" class="q-pa-md">
+        <template v-if="paymentStore.paymentMethod === 'cash'">
           <CashPayment />
-        </div>
+        </template>
 
         <!-- Card Payment -->
-        <div v-if="paymentStore.paymentMethod === 'card'" class="q-pa-md">
+        <template v-if="paymentStore.paymentMethod === 'card'">
           <CardPayment />
-        </div>
+        </template>
       </div>
     </div>
 
@@ -105,9 +132,11 @@
 </template>
 
 <script setup lang="ts">
+import numeral from 'numeral';
 import { onMounted } from 'vue';
 
 import { usePaymentStore } from 'src/stores/payment-store';
+import { formatCurrency } from 'src/utils/payment-calculations';
 
 import BigNumberInput from './BigNumberInput.vue';
 import CardPayment from './CardPayment.vue';
@@ -124,10 +153,3 @@ onMounted(() => {
   paymentStore.initializeStore();
 });
 </script>
-
-<style scoped>
-.payment-processor {
-  max-width: 800px;
-  margin: 0 auto;
-}
-</style>
