@@ -117,7 +117,7 @@
   <q-btn
     class="full-width"
     color="orange-6"
-    :disabled="!canProcessPayment"
+    :disabled="!canProcessPayment || !selectedReader"
     @click="initiateReaderPayment"
   >
     <q-icon class="q-mr-sm" name="fa-solid fa-keyboard" />
@@ -134,7 +134,6 @@
     <q-icon class="q-mr-sm" name="fa-solid fa-credit-card" />
     Input Card Number Manually
   </q-btn>
-
 </template>
 
 <script setup lang="ts">
@@ -165,11 +164,9 @@ const canProcessPayment = computed(() => {
     paymentStore.paymentAmount > 0 &&
     paymentStore.currentLocation !== null &&
     (paymentStore.currentCalculation?.total || 0) >= MINIMUM_PAYMENT_AMOUNT &&
-    selectedReader.value !== null &&
     hasOnlineReaders.value
   );
 });
-
 
 const openFeeDialog = () => {
   eventEmitter.emit(CommonEvent.OPEN_DIALOG, {
@@ -267,6 +264,8 @@ const processManualCardPayment = (cardDetails: {
   expiryMonth: string;
   expiryYear: string;
   cvv: string;
+  country: string;
+  zipcode: string;
 }) => {
   if (!paymentStore.currentLocation) return;
 

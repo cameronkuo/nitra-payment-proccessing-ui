@@ -87,6 +87,30 @@
                 type="password"
               />
             </div>
+
+            <div class="col-12">
+              <q-select
+                v-model="cardDetails.country"
+                emit-value
+                filled
+                label="Country"
+                map-options
+                option-label="name"
+                option-value="code"
+                :options="countryOptions"
+                :rules="[(val) => !!val || 'Country is required']"
+              />
+            </div>
+
+            <div class="col-12">
+              <q-input
+                v-model="cardDetails.zipcode"
+                filled
+                label="ZIP Code"
+                maxlength="10"
+                :rules="zipcodeRules"
+              />
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -148,6 +172,8 @@ interface Emits {
     expiryMonth: string;
     expiryYear: string;
     cvv: string;
+    country: string;
+    zipcode: string;
   }): void;
   (e: 'cancel'): void;
 }
@@ -161,7 +187,42 @@ const cardDetails = reactive({
   expiryMonth: '',
   expiryYear: '',
   cvv: '',
+  country: '',
+  zipcode: '',
 });
+
+const countryOptions = [
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'FI', name: 'Finland' },
+];
+
+const zipcodeRules = [
+  (val: string) => !!val || 'ZIP code is required',
+  (val: string) => {
+    if (cardDetails.country === 'US') {
+      return /^\d{5}(-\d{4})?$/.test(val) || 'US ZIP code must be in format 12345 or 12345-6789';
+    } else if (cardDetails.country === 'CA') {
+      return /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/.test(val) || 'Canadian postal code must be in format A1A 1A1';
+    } else if (cardDetails.country === 'GB') {
+      return /^[A-Za-z]{1,2}\d[A-Za-z\d]? ?\d[A-Za-z]{2}$/.test(val) || 'UK postcode must be in valid format';
+    }
+    return val.length >= 3 || 'ZIP code must be at least 3 characters';
+  },
+];
 
 const isValidCardDetails = computed(() => {
   return (
@@ -169,7 +230,9 @@ const isValidCardDetails = computed(() => {
     cardDetails.cardholderName.length > 0 &&
     cardDetails.expiryMonth.length === 2 &&
     cardDetails.expiryYear.length === 2 &&
-    cardDetails.cvv.length >= 3
+    cardDetails.cvv.length >= 3 &&
+    cardDetails.country.length > 0 &&
+    cardDetails.zipcode.length >= 3
   );
 });
 
@@ -204,6 +267,8 @@ const processPayment = () => {
     expiryMonth: cardDetails.expiryMonth.padStart(2, '0'),
     expiryYear: cardDetails.expiryYear.padStart(2, '0'),
     cvv: cardDetails.cvv,
+    country: cardDetails.country,
+    zipcode: cardDetails.zipcode,
   });
 };
 
