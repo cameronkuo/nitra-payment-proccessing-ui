@@ -9,6 +9,15 @@
       <q-card-section class="p-0!">
         <div class="grid grid-cols-2 gap-y-1 gap-x-3">
           <div class="col-span-2">
+            <div class="col-span-2">
+              <q-input
+                v-model="cardDetails.cardholderName"
+                filled
+                label="Cardholder Name"
+                :rules="[(val) => !!val || 'Cardholder name is required']"
+              />
+            </div>
+
             <q-input
               v-model="cardDetails.number"
               filled
@@ -19,16 +28,7 @@
             />
           </div>
 
-          <div class="col-span-2">
-            <q-input
-              v-model="cardDetails.cardholderName"
-              filled
-              label="Cardholder Name"
-              :rules="[(val) => !!val || 'Cardholder name is required']"
-            />
-          </div>
-
-          <div class="col-span-1">
+          <div>
             <q-input
               v-model="cardDetails.expirationDate"
               filled
@@ -40,7 +40,7 @@
             />
           </div>
 
-          <div class="col-span-1">
+          <div>
             <q-input
               v-model="cardDetails.cvv"
               filled
@@ -52,7 +52,7 @@
             />
           </div>
 
-          <div class="col-span-1">
+          <div>
             <q-select
               v-model="cardDetails.country"
               emit-value
@@ -66,7 +66,7 @@
             />
           </div>
 
-          <div class="col-span-1">
+          <div>
             <q-input
               v-model="cardDetails.zipcode"
               filled
@@ -86,9 +86,9 @@
       <q-btn class="flex-1" color="grey-7" flat label="Cancel" @click="cancelPayment" />
       <q-btn
         class="flex-1"
-        color="primary"
+        color="orange-6"
         :disabled="!isValidCardDetails"
-        label="Process Payment"
+        :label="`Pay ${formatCurrency(calculation.total)}`"
         @click="processPayment"
       />
     </div>
@@ -97,6 +97,8 @@
 
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
+
+import { formatCurrency } from 'src/utils/payment-calculations';
 
 import type { PaymentCalculation, PaymentData } from 'src/types/payment';
 
