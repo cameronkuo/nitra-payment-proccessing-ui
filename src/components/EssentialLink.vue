@@ -1,5 +1,10 @@
 <template>
-  <q-item exact tag="a" :to="link">
+  <q-item
+    exact
+    tag="a"
+    :to="link"
+    @click="eventEmitter.emit(enums.emitter.CommonEvent.TOGGLE_SIDEBAR, false)"
+  >
     <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
     </q-item-section>
@@ -12,6 +17,9 @@
 </template>
 
 <script setup lang="ts">
+import * as enums from 'src/enums';
+import { eventEmitter } from 'src/utils/event-emitter';
+
 export interface EssentialLinkProps {
   title: string;
   caption?: string;
