@@ -141,6 +141,7 @@ import { computed, h, ref } from 'vue';
 
 import { MINIMUM_PAYMENT_AMOUNT, MINIMUM_PAYMENT_AMOUNT_FORMATTED } from 'src/constants/payment';
 import { CommonEvent } from 'src/enums/emitter';
+import dayjs from 'src/libs/dayjs';
 import { usePaymentStore } from 'src/stores/payment-store';
 import { eventEmitter } from 'src/utils/event-emitter';
 import { formatCurrency } from 'src/utils/payment-calculations';
@@ -268,10 +269,11 @@ const processManualCardPayment = (cardDetails: {
 }) => {
   if (!paymentStore.currentLocation) return;
 
-  const expirationParts = cardDetails.expirationDate.split('/');
-  const expiryMonth = expirationParts[0] || '';
-  const expiryYear = expirationParts[1] || '';
-  
+  const expirationDateObject = dayjs(cardDetails.expirationDate);
+  if (!expirationDateObject.isValid()) return;
+  const expiryMonth = expirationDateObject.format('MM');
+  const expiryYear = expirationDateObject.format('YY');
+
   const paymentData: PaymentData = {
     amount: paymentStore.paymentAmount,
     method: 'card',
