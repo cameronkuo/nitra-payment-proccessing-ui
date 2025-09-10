@@ -15,7 +15,7 @@
   <div v-if="paymentStore.paymentAmount > 0">
     <!-- Total Amount Summary -->
     <div class="flex items-center">
-      <span class="font-bold">Pay by Cash Total</span>
+      <span class="font-bold">Pay by Card Total</span>
       <div class="flex-1" />
       <span
         class="font-bold text-xl"
