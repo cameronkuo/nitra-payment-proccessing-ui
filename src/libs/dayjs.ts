@@ -29,14 +29,16 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 dayjs.extend(function (option, dayjsClass) {
-  const oldFormat = dayjsClass.prototype.format.bind(dayjsClass.prototype);
-  const oldDiff = dayjsClass.prototype.diff.bind(dayjsClass.prototype);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const oldFormat = dayjsClass.prototype.format;
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const oldDiff = dayjsClass.prototype.diff;
   dayjsClass.prototype.format = function (args) {
-    return this.isValid() ? oldFormat.call(this, args ?? 'YYYY-MM-DD') : '';
+    return this.isValid() ? oldFormat.bind(this)(args ?? 'YYYY-MM-DD') : '';
   };
   dayjsClass.prototype.diff = function (...args) {
     // default add 1 day
-    return this.isValid() ? oldDiff.call(this, ...args) + 1 : 0;
+    return this.isValid() ? oldDiff.bind(this)(...args) + 1 : 0;
   };
   dayjsClass.prototype.isBetween = function (start, end) {
     return this.isAfter(start) && this.isBefore(end);
