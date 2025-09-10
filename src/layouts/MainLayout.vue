@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn aria-label="Menu" dense flat icon="fa fa-bars" round @click="toggleLeftDrawer" />
 
-        <q-toolbar-title>Collect Payment</q-toolbar-title>
+        <q-toolbar-title>{{ $route.meta.title }}</q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
@@ -25,9 +25,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+
+import useBreakpoints from 'src/composables/useBreakpoints';
+import * as enums from 'src/enums';
+import { eventEmitter } from 'src/utils/event-emitter';
 
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+
+const breakpoints = useBreakpoints();
 
 const linksList: EssentialLinkProps[] = [
   {
@@ -54,6 +60,12 @@ const linksList: EssentialLinkProps[] = [
     icon: 'open_in_new',
     link: '/dialogs',
   },
+  {
+    title: 'Breakpoints Demo',
+    caption: 'Responsive breakpoints',
+    icon: 'devices',
+    link: '/breakpoints',
+  },
 ];
 
 const leftDrawerOpen = ref(false);
@@ -61,4 +73,19 @@ const leftDrawerOpen = ref(false);
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
+
+const isDesktop = computed(() => breakpoints.xxl.value);
+
+watch(
+  () => isDesktop.value,
+  (val) => {
+    leftDrawerOpen.value = val;
+  },
+);
+
+leftDrawerOpen.value = isDesktop.value;
+
+eventEmitter.on(enums.emitter.CommonEvent.TOGGLE_SIDEBAR, (open: boolean) => {
+  leftDrawerOpen.value = open || !leftDrawerOpen.value;
+});
 </script>

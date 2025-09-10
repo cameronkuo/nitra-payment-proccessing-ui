@@ -97,7 +97,7 @@
             type="number"
             @update:model-value="
               (value) =>
-                (patientFixed = organization.totalProcessingFeeFixed - (Number(value) || 0))
+                (merchantFixed = organization.totalProcessingFeeFixed - (Number(value) || 0))
             "
           />
           <div class="text-grey-6">/ ${{ organization.totalProcessingFeeFixed }}</div>
